@@ -4,7 +4,7 @@ public interface Test {
 	public boolean StartTest();
 }
 
-class InfinityTest implements Test{
+/*class InfinityTest implements Test{
 	
 	public boolean StartTest() {
 		try {
@@ -55,7 +55,7 @@ class NodesTest implements Test{
 			System.out.print("¬ведите максимальный размер части:");
 			int Size = new Scanner(System.in).nextInt();
 			
-			Nodes nodes = new Nodes(new InfinityFile(Path,Size));
+			InfinityArray nodes = new InfinityArray(new InfinityFile(Path,Size));
 			
 			boolean result = true;
 			
@@ -120,4 +120,4 @@ class TreeTest implements Test{
 		}	
 	}
 	
-}
+}*/

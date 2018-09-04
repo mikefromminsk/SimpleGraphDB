@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -33,6 +32,19 @@ public class MetaNodes {
 	
 	public long GetFullSize() throws Throwable{
 		return FileI.GetFullSize();
+	}
+	
+	public void Close() throws Throwable{
+		FileI.Close();
+	}
+	
+	public void finalize() throws Throwable {
+		Close();
+	}
+	
+	public void ChangeCacheSetting(long maxSizeCache,long maxFragmentCache) throws Throwable{
+		FileI.setMaxSizeCache(maxSizeCache);
+		FileI.setMaxFragmentCache(maxFragmentCache);
 	}
 }
 

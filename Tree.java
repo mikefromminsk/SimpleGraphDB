@@ -1,18 +1,26 @@
+import java.io.File;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
 public class Tree {
 	
-	Nodes nodes;
-	Nodes links;
-	MetaNodes metaNodes;
-	InfinityFile FileI;
+	public static final int NullNode = 1;
+	
+	private InfinityArray nodes;
+	private InfinityArray links;
+	private MetaNodes metaNodes;
+	private InfinityFile FileI;
+	
+	RandomAccessFile SettingRootStream;
 	
 	public Tree(String path) throws Throwable{
-		nodes = new Nodes(path,MetaNode.DATA);
-		links = new Nodes(path,MetaNode.LINKS);
+		nodes = new InfinityArray(path,MetaNode.DATA);
+		links = new InfinityArray(path,MetaNode.LINKS);
 		metaNodes = new MetaNodes(path);
 		
 		FileI = new InfinityFile(path + "\\.tree");
+		
+		SettingRootStream = new RandomAccessFile(new File(path + "\\.tree","root.settings"),"rw");
 	}
 	
 	public void Add(String data) throws Throwable{
@@ -21,119 +29,162 @@ public class Tree {
 		
 		String hash = new CRC16(data).getHash();
 		
-		long pos = 0;
-		boolean flagAv = true;
-		for(int i=0;i<4;i++){
-			int num = Integer.parseInt(new String(new char[]{hash.charAt(i)}), 16);
-			
-			if(FileI.GetFullSize()<pos+num*8){
-				for(int j=0;j<16;j++)
-					FileI.Add(to8Chars(0));
-			}
-			
-			long BPos = Long.parseLong(FileI.Read(pos+num*8, 8));
-			if((BPos==0 && i<3)||(BPos==0 && !flagAv)){
-				long Size = FileI.GetFullSize();
-				for(int j=0;j<16;j++)
-					FileI.Add(to8Chars(0));
-				if(i<3)
-					FileI.Edit(pos+num*8,to8Chars(Size));
-				else{
-					FileI.Edit(pos+num*8,to8Chars(metaNodes.GetFullSize()));  }
-				if(i<3) flagAv=false;
-			}
-			
-			
-			pos = Long.parseLong(FileI.Read(pos+num*8, 8));
-
-		}
-		
-		if(!flagAv){
+		if(FileI.GetFullSize() == 0) {
 			NodesData n = nodes.Add(data);
 			NodesData l = links.Add(to8Chars(metaNodes.GetFullSize()+21));
-			metaNodes.Add(new MetaNode(hash, MetaNode.LINKS, l.Start, l.Size));
 			
 			metaNodes.Add(new MetaNode(hash, MetaNode.DATA, n.Start, n.Size));
-		}else{
-			String[] arr = Read(hash);
-			for(int i=0;i<arr.length;i++)
-				if(arr[i].equals(data))
-					return;
 			
-			NodesData n = nodes.Add(data);
-			String p = to8Chars(metaNodes.Add(new MetaNode(hash,MetaNode.DATA,n.Start,n.Size)));
-			MetaNode d = new MetaNode(metaNodes.Read(pos));
+			for(int j=0;j<16;j++)
+				FileI.Add(to8Chars(NullNode));
+			
+			
+			FileI.Edit(Long.parseLong(new String(new char[]{hash.charAt(2)}), 16)*8,
+					to8Chars(metaNodes.Add(new MetaNode(hash, MetaNode.LINKS, l.Start, l.Size))));
+			
+			ChangeRootNode(GetHashLevel(hash,3) + to8Chars(FileI.GetFullSize()));
 
+			long pos = FileI.GetFullSize() + Integer.parseInt(new String(new char[]{hash.charAt(3)}), 16)*8;
 			
-			if(d.Size>=(links.Read(new NodesData(d.Start,d.Size)) + p).length())
-				links.Edit(d.Start, links.Read(new NodesData(d.Start,d.Size)) + p);
-			else{
-				NodesData newData = links.Add(links.Read(new NodesData(d.Start,d.Size)) + p);
-				metaNodes.Edit(pos, new MetaNode(d.Id,d.Type,newData.Start,newData.Size));
+			for(int j=0;j<16;j++)
+				FileI.Add(to8Chars(NullNode));
+			
+			FileI.Edit(pos, to8Chars(0));
+		}else {
+			int divergence = -1;
+			String LastRootNode = ReadRootNode().substring(0, 4);
+			for(int i=0;i<LastRootNode.length();i++) {
+				if(LastRootNode.charAt(i)=='*') break;
+				
+				if(hash.charAt(i)!=LastRootNode.charAt(i)) {
+					divergence = i;
+					break;
+				}
 			}
-		}		
+			if(divergence==-1){
+				
+				long pos = Long.parseLong(ReadRootNode().substring(4, 12));
+				
+				boolean flagAv = true;
+				
+				for(int i=GetLevelNode(LastRootNode);i<4;i++){
+					int num = Integer.parseInt(new String(new char[]{hash.charAt(i)}), 16);
+					
+					if(FileI.GetFullSize()<pos+num*8){
+						for(int j=0;j<16;j++)
+							FileI.Add(to8Chars(NullNode));
+					}
+					
+					long BPos = Long.parseLong(FileI.Read(pos+num*8, 8));
+					if((BPos==NullNode && i<3)||(BPos==NullNode && !flagAv)){
+						long Size = FileI.GetFullSize();
+						for(int j=0;j<16;j++)
+							FileI.Add(to8Chars(NullNode));
+						if(i<3)
+							FileI.Edit(pos+num*8,to8Chars(Size));
+						else{
+							FileI.Edit(pos+num*8,to8Chars(metaNodes.GetFullSize()));  }
+						if(i<3) flagAv=false;
+					}
+					
+					
+					pos = Long.parseLong(FileI.Read(pos+num*8, 8));
+				}
+				
+				
+				if(!flagAv){
+					NodesData n = nodes.Add(data);
+					NodesData l = links.Add(to8Chars(metaNodes.GetFullSize()+21));
+					metaNodes.Add(new MetaNode(hash, MetaNode.LINKS, l.Start, l.Size));
+					
+					metaNodes.Add(new MetaNode(hash, MetaNode.DATA, n.Start, n.Size));
+				}else{
+					String[] arr = Read(hash);
+					for(int i=0;i<arr.length;i++)
+						if(arr[i].equals(data))
+							return;
+					
+					NodesData n = nodes.Add(data);
+					String p = to8Chars(metaNodes.Add(new MetaNode(hash,MetaNode.DATA,n.Start,n.Size)));
+					MetaNode d = new MetaNode(metaNodes.Read(pos));
+
+					
+					if(d.Size>=(links.Read(new NodesData(d.Start,d.Size)) + p).length())
+						links.Edit(d.Start, links.Read(new NodesData(d.Start,d.Size)) + p);
+					else{
+						NodesData newData = links.Add(links.Read(new NodesData(d.Start,d.Size)) + p);
+						links.AddGC(to8Chars(d.Start), d.Size);
+						metaNodes.Edit(pos, new MetaNode(d.Id,d.Type,newData.Start,newData.Size));
+					}
+				}
+				
+			}else{
+				long buf = 0;
+				for(int i=GetLevelNode(LastRootNode)-1;i>=divergence;i--){
+					buf = FileI.GetFullSize() + 
+						8*Integer.parseInt(new String(new char[]{LastRootNode.charAt(i)}), 16);
+					for(int j=0;j<16;j++)
+						FileI.Add(to8Chars(NullNode));
+					FileI.Edit(buf, ReadRootNode().substring(4,12));
+					
+					ChangeRootNode(GetHashLevel(LastRootNode,divergence)+
+							to8Chars(FileI.GetFullSize()-8*16));	
+				}
+				Add(data);
+			}
+		}
 	}
 	
-	public void AddSame(String data) throws Throwable{
-		if(data.length()==0)
-			throw new Throwable("Пустая строка");
-		
-		String hash = new CRC16(data).getHash();
-		
-		long pos = 0;
-		boolean flagAv = true;
-		for(int i=0;i<4;i++){
-			int num = Integer.parseInt(new String(new char[]{hash.charAt(i)}), 16);
-			
-			if(FileI.GetFullSize()<pos+num*8){
-				for(int j=0;j<16;j++)
-					FileI.Add(to8Chars(0));
-			}
-			
-			long BPos = Long.parseLong(FileI.Read(pos+num*8, 8));
-			if((BPos==0 && i<3)||(BPos==0 && !flagAv)){
-				long Size = FileI.GetFullSize();
-				for(int j=0;j<16;j++)
-					FileI.Add(to8Chars(0));
-				if(i<3)
-					FileI.Edit(pos+num*8,to8Chars(Size));
-				else{
-					FileI.Edit(pos+num*8,to8Chars(metaNodes.GetFullSize()));  }
-				if(i<3) flagAv=false;
-			}
-			
-			
-			pos = Long.parseLong(FileI.Read(pos+num*8, 8));
-
+	public int GetLevelNode(String hash){
+		while(hash.length()!=0 && hash.charAt(hash.length()-1)=='*'){
+			hash = hash.substring(0, hash.length()-1);
 		}
-		
-		if(!flagAv){
-			NodesData n = nodes.Add(data);
-			NodesData l = links.Add(to8Chars(metaNodes.GetFullSize()+21));
-			metaNodes.Add(new MetaNode(hash, MetaNode.LINKS, l.Start, l.Size));
-			
-			metaNodes.Add(new MetaNode(hash, MetaNode.DATA, n.Start, n.Size));
-		}else{		
-			NodesData n = nodes.Add(data);
-			String p = to8Chars(metaNodes.Add(new MetaNode(hash,MetaNode.DATA,n.Start,n.Size)));
-			MetaNode d = new MetaNode(metaNodes.Read(pos));
-
-			
-			if(d.Size>=(links.Read(new NodesData(d.Start,d.Size)) + p).length())
-				links.Edit(d.Start, links.Read(new NodesData(d.Start,d.Size)) + p);
-			else{
-				NodesData newData = links.Add(links.Read(new NodesData(d.Start,d.Size)) + p);
-				metaNodes.Edit(pos, new MetaNode(d.Id,d.Type,newData.Start,newData.Size));
-			}
-		}		
+		return hash.length();
+	}
+	
+	public void ChangeRootNode(String data) throws Throwable {
+		SettingRootStream.seek(0);
+		SettingRootStream.write(data.getBytes()); 
+	}
+	
+	public String ReadRootNode() throws Throwable {
+		String buffer = "";
+		for(int i=0;i<12;i++) {
+			SettingRootStream.seek(i);
+			buffer += new String(new byte[]{SettingRootStream.readByte()});
+		}	
+		return buffer; 
+	}
+	
+	public String GetHashLevel(String Hash,int Level) {
+		Hash = Hash.substring(0,Level);
+		while(Hash.length()<4)
+			Hash += "*";
+		return Hash;
 	}
 	
 	public String[] Read(String hash) throws Throwable{
+		if(FileI.GetFullSize() == 0)
+			return new String[0];
+		
+		int divergence = -1;
+		String LastRootNode = ReadRootNode().substring(0, 4);
+		for(int i=0;i<LastRootNode.length();i++) {
+			if(LastRootNode.charAt(i)=='*') break;
+			
+			if(hash.charAt(i)!=LastRootNode.charAt(i)) {
+				divergence = i;
+				break;
+			}
+		}
+		
+		if(divergence!=-1)
+			return new String[0];
 		
 		ArrayList<String> list = new ArrayList<String>();
 		
-		long pos = 0;
-		for(int i=0;i<4;i++){
+		long pos = Long.parseLong(ReadRootNode().substring(4, 12));
+		for(int i=GetLevelNode(LastRootNode);i<4;i++){
 			int num = Integer.parseInt(new String(new char[]{hash.charAt(i)}), 16);
 			pos = Integer.parseInt(FileI.Read(pos+num*8, 8));
 		}
@@ -153,12 +204,31 @@ public class Tree {
 		return list.toArray(new String[list.size()]);
 	}
 	
+	public void Close() throws Throwable{
+		nodes.Close();
+		links.Close();
+		metaNodes.Close();
+		FileI.Close();
+		SettingRootStream.close();
+	}
+	
+	public void finalize() throws Throwable {
+		Close();
+	}
 	
 	private String to8Chars(long i){
 		String str = String.valueOf(i);
 		while(str.length()<8)
 			str= "0" + str;
 		return str;
+	}
+	
+	public void ChangeCacheSetting(long maxSizeCache,long maxFragmentCache) throws Throwable{
+		nodes.ChangeCacheSetting(maxSizeCache, maxFragmentCache);
+		links.ChangeCacheSetting(maxSizeCache, maxFragmentCache);
+		metaNodes.ChangeCacheSetting(maxSizeCache, maxFragmentCache);
+		FileI.setMaxSizeCache(maxSizeCache);
+		FileI.setMaxFragmentCache(maxFragmentCache);
 	}
 	
 }

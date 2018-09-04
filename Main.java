@@ -1,5 +1,4 @@
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
@@ -12,7 +11,7 @@ public class Main {
 			/*System.out.println("3.Запустить тест бесконечного файла");
 			System.out.println("4.Запустить тест узлов");
 			System.out.println("5.Запустить тест дерева");*/
-			System.out.println("6.Выход");
+			System.out.println("3.Выход");
 			System.out.print("\nВведите пункт меню:");
 			
 			int num = new Scanner(System.in).nextInt();
@@ -21,7 +20,7 @@ public class Main {
 			switch(num) {
 				case 1: CreateRep(); break;
 				case 2: ToRep(); break;
-				case 3: 
+				/*case 3: 
 					if(new InfinityTest().StartTest()) 
 						System.out.println("Тест прошёл успешно.\n");
 					else
@@ -38,8 +37,8 @@ public class Main {
 						System.out.println("Тест прошёл успешно.\n");
 					else
 						System.out.println("Тест закончился неудачей.\n");
-					break;
-				case 6: flag = true;  break;
+					break;*/
+				case 3: flag = true;  break;
 			}
 			
 			if(flag) break;
@@ -70,7 +69,7 @@ public class Main {
 		
 		while(true) {
 			System.out.println("\n1.Добавить узел");
-			System.out.println("2.Добавить узел(одинаковый)");
+			System.out.println("2.Изменить настройки кэша");
 			System.out.println("3.Вывести список строк");
 			System.out.println("4.Назад");
 			System.out.print("\nВведите пункт меню:");
@@ -88,9 +87,11 @@ public class Main {
 						tree.Add(addStr);
 						break;
 					case 2:
-						System.out.print("Введите строку:");
-						String addS = new Scanner(System.in).nextLine();
-						tree.AddSame(addS);
+						System.out.print("Введите размер бесконечного файла:");
+						long maxSizeCache = new Scanner(System.in).nextLong();
+						System.out.print("Введите количество фрагментов:");
+						long maxFragmentCache = new Scanner(System.in).nextLong();
+						tree.ChangeCacheSetting(maxSizeCache, maxFragmentCache);
 						break;
 					case 3:
 						System.out.print("Введите идентификатор:");
@@ -102,10 +103,11 @@ public class Main {
 							System.out.println(strs[i]);
 						
 						break;
-					case 4: flag = true;  break;
+					case 4: tree.Close(); flag = true;  break;
 				}
 			}catch(Throwable e) {
 				System.out.println("\n"+e.getMessage()+"\n");
+				e.printStackTrace();
 			}
 		
 			if(flag) break;
