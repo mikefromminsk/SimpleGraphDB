@@ -5,7 +5,7 @@ import java.io.RandomAccessFile;
 
 public class InfinityArray {
 
-    InfinityFile FileI;
+    InfinityFile infinityFile;
     String path;
 
     public InfinityArray(String path, int meta) throws Throwable {
@@ -14,23 +14,18 @@ public class InfinityArray {
         else
             this.path = path + "\\.links";
 
-        FileI = new InfinityFile(this.path);
+        infinityFile = new InfinityFile(this.path);
     }
 
-    public InfinityArray(InfinityFile file, MetaNodes Meta) {
-        FileI = file;
-    }
-
-    public NodesData Add(String str) throws Throwable {
-        String bStr = str;
+    public NodesData Add(String data) throws Throwable {
 
         int Size = 1;
-        while (Size < bStr.length())
+        while (Size < data.length())
             Size *= 2;
-        while (Size > bStr.length())
-            bStr += " ";
+        while (Size > data.length())
+            data += " ";
 
-        long Start = FileI.GetFullSize();
+        long Start = infinityFile.GetFullSize();
 
         if (new File(path, Size + ".gc").isFile()) {
             long StartBuf = Start;
@@ -54,18 +49,18 @@ public class InfinityArray {
 
             if (StartBuf != Start) {
                 Start = StartBuf;
-                FileI.Edit(Start, bStr);
-                return new NodesData(Start, bStr.length());
+                infinityFile.Edit(Start, data);
+                return new NodesData(Start, data.length());
             }
         }
 
-        FileI.Add(bStr);
+        infinityFile.Add(data);
 
-        return new NodesData(Start, bStr.length());
+        return new NodesData(Start, data.length());
     }
 
     public long GetFullSize() throws Throwable {
-        return FileI.GetFullSize();
+        return infinityFile.GetFullSize();
     }
 
     public NodesData Edit(long pos, String str) throws Throwable {
@@ -77,13 +72,13 @@ public class InfinityArray {
         while (Size > bStr.length())
             bStr += " ";
 
-        FileI.Edit(pos, bStr);
+        infinityFile.Edit(pos, bStr);
 
         return new NodesData(pos, bStr.length());
     }
 
     public String Read(NodesData data) throws Throwable {
-        return FileI.Read(data.Start, data.Size);
+        return infinityFile.Read(data.Start, data.Size);
     }
 
     public void AddGC(String Start, long Size) throws Throwable {
@@ -93,7 +88,7 @@ public class InfinityArray {
     }
 
     public void Close() throws Throwable {
-        FileI.Close();
+        infinityFile.Close();
     }
 
     public void finalize() throws Throwable {
@@ -101,8 +96,8 @@ public class InfinityArray {
     }
 
     public void ChangeCacheSetting(long maxSizeCache, long maxFragmentCache) throws Throwable {
-        FileI.setMaxSizeCache(maxSizeCache);
-        FileI.setMaxFragmentCache(maxFragmentCache);
+        infinityFile.setMaxSizeCache(maxSizeCache);
+        infinityFile.setMaxFragmentCache(maxFragmentCache);
     }
 }
 
