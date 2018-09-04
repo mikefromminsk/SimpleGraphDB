@@ -3,12 +3,12 @@ import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 
 
-public class InfinityArray {
+public class Nodes {
 	
 	InfinityFile FileI;
 	String path;
 	
-	public InfinityArray(String path,int meta) throws Throwable{
+	public Nodes(String path,int meta) throws Throwable{
 		if(meta == MetaNode.DATA)
 			this.path = path+"\\.nodes";
 		else
@@ -17,7 +17,7 @@ public class InfinityArray {
 		FileI = new InfinityFile(this.path);
 	}
 	
-	public InfinityArray(InfinityFile file,MetaNodes Meta){
+	public Nodes(InfinityFile file,MetaNodes Meta){
 		FileI = file;
 	}
 	
@@ -91,30 +91,7 @@ public class InfinityArray {
 		fos.write(Start.getBytes());
 		fos.close();
 	}
-	
-	public void Close() throws Throwable{
-		FileI.Close();
-	}
-	
-	public void finalize() throws Throwable {
-		Close();
-	}
-	
-	public void ChangeCacheSetting(long maxSizeCache,long maxFragmentCache) throws Throwable{
-		FileI.setMaxSizeCache(maxSizeCache);
-		FileI.setMaxFragmentCache(maxFragmentCache);
-	}
 }
 
-class NodesData{
-	
-	public long Start;
-	public long Size;
-	
-	public NodesData(long Start,long Size){
-		this.Start = Start;
-		this.Size = Size;
-	}
-}
 
 

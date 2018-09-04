@@ -8,10 +8,10 @@ public interface Test {
 	
 	public boolean StartTest() {
 		try {
-			System.out.print("Введите путь к репозиторию:");
+			System.out.print("Р’РІРµРґРёС‚Рµ РїСѓС‚СЊ Рє СЂРµРїРѕР·РёС‚РѕСЂРёСЋ:");
 			String Path = new Scanner(System.in).nextLine();
 			
-			System.out.print("Введите максимальный размер части:");
+			System.out.print("Р’РІРµРґРёС‚Рµ РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ С‡Р°СЃС‚Рё:");
 			int Size = new Scanner(System.in).nextInt();
 			
 			InfinityFile file = new InfinityFile(Path,Size);
@@ -49,10 +49,10 @@ class NodesTest implements Test{
 	
 	public boolean StartTest() {
 		try {
-			System.out.print("Введите путь к репозиторию:");
+			System.out.print("Р’РІРµРґРёС‚Рµ РїСѓС‚СЊ Рє СЂРµРїРѕР·РёС‚РѕСЂРёСЋ:");
 			String Path = new Scanner(System.in).nextLine();
 			
-			System.out.print("Введите максимальный размер части:");
+			System.out.print("Р’РІРµРґРёС‚Рµ РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ С‡Р°СЃС‚Рё:");
 			int Size = new Scanner(System.in).nextInt();
 			
 			InfinityArray nodes = new InfinityArray(new InfinityFile(Path,Size));
@@ -86,10 +86,10 @@ class TreeTest implements Test{
 	
 	public boolean StartTest() {
 		try {
-			System.out.print("Введите путь к репозиторию:");
+			System.out.print("Р’РІРµРґРёС‚Рµ РїСѓС‚СЊ Рє СЂРµРїРѕР·РёС‚РѕСЂРёСЋ:");
 			String Path = new Scanner(System.in).nextLine();
 			
-			System.out.print("Введите максимальный размер части:");
+			System.out.print("Р’РІРµРґРёС‚Рµ РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ С‡Р°СЃС‚Рё:");
 			int Size = new Scanner(System.in).nextInt();
 			
 			Tree tree = new Tree(new InfinityFile(Path,Size));

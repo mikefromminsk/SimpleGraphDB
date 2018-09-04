@@ -78,4 +78,18 @@ class MetaNode{
 			Main.to8byte(Size);
 	}
 	
+	public boolean equals(Object obj){
+		try{
+			MetaNode node = (MetaNode)obj;
+			if(this.Id.equals(node.Id) && 
+					this.Type == node.Type && this.Start == node.Start
+					&& this.Size == node.Size)
+				return true;
+			else 
+				return false;
+		}catch(Throwable e){
+			return false;
+		}
+	}
+	
 }

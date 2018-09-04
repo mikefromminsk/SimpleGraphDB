@@ -25,7 +25,7 @@ public class Tree {
 	
 	public void Add(String data) throws Throwable{
 		if(data.length()==0)
-			throw new Throwable("Пустая строка");
+			throw new Throwable("РџСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР°");
 		
 		String hash = new CRC16(data).getHash();
 		
@@ -255,9 +255,9 @@ class TreeNode{
 
 	public String getType() {
 		if(Type==MetaNode.DATA)
-			return "Массив строк";
+			return "РњР°СЃСЃРёРІ СЃС‚СЂРѕРє";
 		else
-			return "Массив ссылок";
+			return "РњР°СЃСЃРёРІ СЃСЃС‹Р»РѕРє";
 	}
 
 	public void setType(int type) {

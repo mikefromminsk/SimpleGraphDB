@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
@@ -148,8 +149,8 @@ public class InfinityFile {
 	}
 	
 	public String Read(long Start,long Size) throws Throwable{
-		if(GetFullSize() < Start + Size)
-        	throw new Throwable("Выход за предел данных");
+		if(GetFullSize() < Start + Size) 
+				throw new Throwable("Выход за предел данных");
 		String buffer = "";
 		for(int i=0;i<Size;i++){
 				RandomAccessFile reader = ListThreads.get((int) ((Start+i)/this.Size));
@@ -172,13 +173,20 @@ public class InfinityFile {
 	public long GetFullSize() throws Throwable{
 		if(Names.length == 0)
 			return 0;
-		if(treeCache.containsKey("Size")) 
-			return Long.parseLong(treeCache.get("Size"));
+		//if(treeCache.containsKey("Size")) 
+			//return Long.parseLong(treeCache.get("Size"));
     	RandomAccessFile writer = ListThreads.get(Names.length-1);
     	long lengthFile = Size * (Names.length-1) + writer.length();
     	
     	treeCache.put("Size", String.valueOf(lengthFile));
     	return lengthFile;
+	}
+	
+	private void ChangeCacheSize() throws Throwable {
+    	RandomAccessFile writer = ListThreads.get(Names.length-1);
+    	long lengthFile = Size * (Names.length-1) + writer.length();
+    	
+    	treeCache.put("Size", String.valueOf(lengthFile));
 	}
 	
 	private void testCacheSize() throws Throwable {
