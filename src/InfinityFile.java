@@ -35,7 +35,7 @@ public class InfinityFile {
 			Files.createDirectory(Paths.get(Path));
 		
 		if(new File(Path,".settings").isFile())
-			throw new Throwable("Данный репозиторий уже существует");
+			throw new Throwable("Р”Р°РЅРЅС‹Р№ СЂРµРїРѕР·РёС‚РѕСЂРёР№ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚");
 		
 		this.Path = Path;
 		this.Size = Size;
@@ -60,7 +60,7 @@ public class InfinityFile {
 		
 		this.Path = Path;
 		if(!new File(Path,".settings").isFile())
-			throw new Throwable("Репозиторий не найден");
+			throw new Throwable("Р РµРїРѕР·РёС‚РѕСЂРёР№ РЅРµ РЅР°Р№РґРµРЅ");
 		FileInputStream fis = new FileInputStream(new File(Path,".settings"));
 		BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
 
@@ -138,7 +138,7 @@ public class InfinityFile {
 	
 	public void Edit(long Start,String Data) throws Throwable{
         	if(GetFullSize() < Start + Data.length())
-        		throw new Throwable("Выход за предел данных"); 
+        		throw new Throwable("Р’С‹С…РѕРґ Р·Р° РїСЂРµРґРµР» РґР°РЅРЅС‹С…"); 
 			for(int i=0;i<Data.length();i++){
 				RandomAccessFile writer = ListThreads.get((int) ((Start+i)/Size));
 				writer.seek((Start+i)%Size);
@@ -150,7 +150,7 @@ public class InfinityFile {
 	
 	public String Read(long Start,long Size) throws Throwable{
 		if(GetFullSize() < Start + Size) 
-				throw new Throwable("Выход за предел данных");
+				throw new Throwable("Р’С‹С…РѕРґ Р·Р° РїСЂРµРґРµР» РґР°РЅРЅС‹С…");
 		String buffer = "";
 		for(int i=0;i<Size;i++){
 				RandomAccessFile reader = ListThreads.get((int) ((Start+i)/this.Size));

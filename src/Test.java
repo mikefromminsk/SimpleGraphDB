@@ -1,11 +1,11 @@
 import java.util.Scanner;
 
 public interface Test {
-	public boolean StartTest();
+    public boolean StartTest();
 }
 
 /*class InfinityTest implements Test{
-	
+
 	public boolean StartTest() {
 		try {
 			System.out.print("Введите путь к репозиторию:");
