@@ -65,7 +65,7 @@ public class DiskManager {
     }
 
     public InfinityFileSettings getInfinityFileSettings(String infinityFileID) {
-        return new InfinityFileSettings(properties.getSection(infinityFileID));
+        return new InfinityFileSettings(properties.getSection(infinityFileID), mainThread, archThread);
     }
 
 

@@ -1,5 +1,7 @@
 package refactored;
 
+import java.io.RandomAccessFile;
+
 public class InfinityFile {
     InfinityFileSettings settings;
 
@@ -7,18 +9,26 @@ public class InfinityFile {
         settings = DiskManager.getInstance().getInfinityFileSettings(infinityFileID);
     }
 
+    byte[] read(long start, int length) {
+        if (start + length > settings.sumFilesSize)
+            return null;
 
-    byte[] read(long start, int length){
+        int readingFileIndex = (int) (start / settings.partSize);
+        RandomAccessFile readingFile = settings.files.get(readingFileIndex);
+        int startInFile = (int) (start - readingFileIndex * settings.partSize);
 
-        return null;
+        return settings.mainThread.read(readingFile, startInFile, length);
     }
 
-    void write(long start, byte[] data){
+    void write(long start, byte[] data) {
+        if (data == null || data.length == 0)
+            return;
 
-    }
+        int readingFileIndex = (int) (start / settings.partSize);
+        RandomAccessFile readingFile = settings.files.get(readingFileIndex);
+        int startInFile = (int) (start - readingFileIndex * settings.partSize);
 
-    void edit(){
-
+        settings.mainThread.write(readingFile, startInFile, data);
     }
 
 }
