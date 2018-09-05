@@ -5,6 +5,10 @@ import java.io.RandomAccessFile;
 
 public class ActionThread {
 
+    public ActionThread(String rootDir) {
+
+    }
+
     public enum Action {
         READ,
         WRITE
