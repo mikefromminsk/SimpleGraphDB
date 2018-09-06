@@ -42,7 +42,7 @@ public class ActionThread implements Runnable {
     }
 
 
-    Object syncWriteLoop = 1;
+    private Object syncWriteLoopObject = 1;
 
     @Override
     public void run() {
@@ -53,9 +53,9 @@ public class ActionThread implements Runnable {
                 if (success)
                     writeActionsBuffer.remove(action);
             } else {
-                synchronized (syncWriteLoop) {
+                synchronized (syncWriteLoopObject) {
                     try {
-                        syncWriteLoop.wait();
+                        syncWriteLoopObject.wait();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -74,8 +74,8 @@ public class ActionThread implements Runnable {
             } finally {
                 threadsWaiting--;
                 if (threadsWaiting == 0) {
-                    synchronized (syncWriteLoop) {
-                        syncWriteLoop.notify();
+                    synchronized (syncWriteLoopObject) {
+                        syncWriteLoopObject.notify();
                     }
                 }
             }
