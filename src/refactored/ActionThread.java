@@ -28,10 +28,10 @@ public class ActionThread implements Runnable {
 
     private ArrayList<WriteActionsBuffer> writeActionsBuffer = new ArrayList<>();
 
-    public void write(RandomAccessFile file, int offset, byte[] data) {
+    public void write(RandomAccessFile file, long offset, byte[] data) {
         if (data == null || data.length == 0)
             return;
-        writeActionsBuffer.add(new WriteActionsBuffer(file, offset, data));
+        writeActionsBuffer.add(new WriteActionsBuffer(file, (int) offset, data));
         synchronized (syncWriteLoopObject) {
             syncWriteLoopObject.notify();
         }
