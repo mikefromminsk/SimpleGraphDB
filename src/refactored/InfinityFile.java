@@ -29,6 +29,7 @@ public class InfinityFile {
         int startInFile = (int) (start - readingFileIndex * settings.partSize);
 
         settings.mainThread.write(readingFile, startInFile, data);
+        settings.archThread.write(readingFile, startInFile, data);
     }
 
 }

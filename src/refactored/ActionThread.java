@@ -24,25 +24,18 @@ public class ActionThread implements Runnable {
         return null;
     }
 
+    private final Object syncWriteLoopObject = 1;
 
     private ArrayList<WriteActionsBuffer> writeActionsBuffer = new ArrayList<>();
 
     public void write(RandomAccessFile file, int offset, byte[] data) {
         if (data == null || data.length == 0)
             return;
-
-        if (threadsWaiting > 0) {
-            writeActionsBuffer.add(new WriteActionsBuffer(file, offset, data));
-        } else {
-            boolean success = doAction(ACTION_WRITE, file, offset, data.length, data);
-            if (!success) {
-                writeActionsBuffer.add(new WriteActionsBuffer(file, offset, data));
-            }
+        writeActionsBuffer.add(new WriteActionsBuffer(file, offset, data));
+        synchronized (syncWriteLoopObject) {
+            syncWriteLoopObject.notify();
         }
     }
-
-
-    private final Object syncWriteLoopObject = 1;
 
     @Override
     public void run() {
