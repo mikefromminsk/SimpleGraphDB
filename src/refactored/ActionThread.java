@@ -42,7 +42,7 @@ public class ActionThread implements Runnable {
     }
 
 
-    private Object syncWriteLoopObject = 1;
+    private final Object syncWriteLoopObject = 1;
 
     @Override
     public void run() {
