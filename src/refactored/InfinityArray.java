@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 public class InfinityArray extends InfinityFile {
 
     InfinityConstArray meta;
+    // TODO garbage collector
 
     InfinityArray(String infinityFileID) {
         super(infinityFileID);

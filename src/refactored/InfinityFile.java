@@ -4,6 +4,8 @@ import java.io.RandomAccessFile;
 
 public class InfinityFile {
     InfinityFileSettings settings;
+    // TODO add cache
+    // TODO add secure
 
     InfinityFile(String infinityFileID) {
         settings = DiskManager.getInstance().getInfinityFileSettings(infinityFileID);
@@ -33,7 +35,8 @@ public class InfinityFile {
         // TODO write to 2 files
 
         settings.mainThread.write(writeFile, startInFile, data);
-        settings.archThread.write(writeFile, startInFile, data);
+        if (settings.archThread != null)
+            settings.archThread.write(writeFile, startInFile, data);
     }
 
     void add(byte[] data) {

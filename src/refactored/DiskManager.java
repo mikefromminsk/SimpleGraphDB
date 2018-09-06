@@ -21,6 +21,8 @@ public class DiskManager {
     }
 
     private DiskManager() {
+        // TODO double save settings
+        // TODO problem when DiskManager init without saving data rights
         if (!loadProps()) {
             if (!saveProps())
                 loadProps();
