@@ -2,8 +2,9 @@ package refactored;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 
-public class ActionThread {
+public class ActionThread implements Runnable {
 
     public ActionThread(String rootDir) {
 
@@ -23,25 +24,64 @@ public class ActionThread {
         return null;
     }
 
-    public boolean write(RandomAccessFile file, int offset, byte[] data) {
-        if (threadsWaiting > 0)
-            return false;
-        return doAction(ACTION_WRITE, file, offset, data.length, data);
+
+    private ArrayList<WriteActionsBuffer> writeActionsBuffer = new ArrayList<>();
+
+    public void write(RandomAccessFile file, int offset, byte[] data) {
+        if (data == null || data.length == 0)
+            return;
+
+        if (threadsWaiting > 0) {
+            writeActionsBuffer.add(new WriteActionsBuffer(file, offset, data));
+        } else {
+            boolean success = doAction(ACTION_WRITE, file, offset, data.length, data);
+            if (!success) {
+                writeActionsBuffer.add(new WriteActionsBuffer(file, offset, data));
+            }
+        }
     }
 
-    synchronized boolean doAction(boolean actionType, RandomAccessFile file, int offset, int length, byte[] result) {
+
+    Object syncWriteLoop = 1;
+
+    @Override
+    public void run() {
+        while (true) {
+            if (threadsWaiting == 0 && writeActionsBuffer.size() > 0) {
+                WriteActionsBuffer action = writeActionsBuffer.get(0);
+                boolean success = doAction(ACTION_WRITE, action.file, action.offset, action.data.length, action.data);
+                if (success)
+                    writeActionsBuffer.remove(action);
+            } else {
+                synchronized (syncWriteLoop) {
+                    try {
+                        syncWriteLoop.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    synchronized boolean doAction(boolean actionType, RandomAccessFile file, int offset, int length, byte[] data) {
         if (actionType == ACTION_READ) {
             try {
-                file.read(result, offset, length);
-                threadsWaiting--;
+                file.read(data, offset, length);
                 return true;
             } catch (IOException e) {
-                threadsWaiting--;
                 return false;
+            } finally {
+                threadsWaiting--;
+                if (threadsWaiting == 0) {
+                    synchronized (syncWriteLoop) {
+                        syncWriteLoop.notify();
+                    }
+                }
             }
         } else {
             try {
-                file.write(result, offset, length);
+                file.write(data, offset, length);
                 return true;
             } catch (IOException e) {
                 return false;
