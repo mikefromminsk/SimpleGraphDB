@@ -56,8 +56,7 @@ public class ActionThread implements Runnable {
                 synchronized (syncWriteLoopObject) {
                     try {
                         syncWriteLoopObject.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    } catch (InterruptedException continueLoop) {
                     }
                 }
             }
