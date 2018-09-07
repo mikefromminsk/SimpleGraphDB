@@ -10,7 +10,9 @@ public class HashTree extends InfinityConstArray {
     InfinityArray hashes;
     public final static int MASK_SIZE = 4;
     public final static int LINKS_SIZE = MASK_SIZE * MASK_SIZE * Long.BYTES;
+    // TODO HALF_LONG value change to max tree node count
     public final static long HALF_LONG = Long.MAX_VALUE / 2L;
+
     TreeNode root;
 
     HashTree(String infinityFileID) {
@@ -47,7 +49,7 @@ public class HashTree extends InfinityConstArray {
             long hashIndex = hashes.add(newHash.getBytes());
             node.setLink(this, link, hash[i], hashIndex + HALF_LONG);
         } else {
-
+            long nodeIndex = link
         }
 
     }
