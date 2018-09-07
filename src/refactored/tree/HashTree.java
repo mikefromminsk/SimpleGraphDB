@@ -49,7 +49,7 @@ public class HashTree extends InfinityConstArray {
             long hashIndex = hashes.add(newHash.getBytes());
             node.setLink(this, link, hash[i], hashIndex + HALF_LONG);
         } else {
-            long nodeIndex = link
+
         }
 
     }

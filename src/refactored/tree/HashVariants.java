@@ -5,11 +5,12 @@ import refactored.Bytes;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class HaseVariants {
+public class HashVariants {
+
     byte[] mask;
     ArrayList<Hash> links;
 
-    public HaseVariants(byte[] data) {
+    public HashVariants(byte[] data) {
         this.mask = Arrays.copyOfRange(data, 0, HashTree.MASK_SIZE - 1);
         int hashVariantsCount = (data.length - HashTree.MASK_SIZE) / Hash.SIZE;
         for (int i = 0; i < hashVariantsCount; i++) {
