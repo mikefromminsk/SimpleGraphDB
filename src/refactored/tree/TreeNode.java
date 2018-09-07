@@ -1,6 +1,7 @@
 package refactored.tree;
 
 import refactored.Bytes;
+import refactored.InfinityConstArray;
 
 import java.util.Arrays;
 
@@ -24,5 +25,11 @@ public class TreeNode {
         System.arraycopy(mask, 0, data, 0, HashTree.MASK_SIZE);
         System.arraycopy(Bytes.fromLongArray(links), 0, data, HashTree.MASK_SIZE - 1, HashTree.LINKS_SIZE);
         return data;
+    }
+
+    public void setLink(InfinityConstArray file, long nodeIndex, int linkIndex, long linkValue) {
+        links[linkIndex] = linkValue;
+        long start = nodeIndex * SIZE + HashTree.MASK_SIZE +  linkIndex * Long.BYTES;
+        file.write(start, Bytes.fromLong(linkValue));
     }
 }

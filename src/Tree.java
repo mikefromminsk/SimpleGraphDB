@@ -1,3 +1,5 @@
+import refactored.tree.CRC16;
+
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;

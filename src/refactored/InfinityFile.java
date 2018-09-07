@@ -24,7 +24,7 @@ public class InfinityFile {
         return settings.mainThread.read(readingFile, startInFile, (int) length);
     }
 
-    void write(long start, byte[] data) {
+    public void write(long start, byte[] data) {
         if (data == null || data.length == 0 || start + data.length > settings.sumFilesSize)
             return;
 

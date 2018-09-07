@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import org.junit.Test;
+import refactored.tree.CRC16;
 
 
 public class Tests {

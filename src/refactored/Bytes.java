@@ -15,7 +15,7 @@ public class Bytes {
         return ByteBuffer.wrap(bytes).getInt();
     }
 
-    public static byte[] fromLong(int value) {
+    public static byte[] fromLong(long value) {
         return ByteBuffer.allocate(8).putLong(value).array();
     }
 
