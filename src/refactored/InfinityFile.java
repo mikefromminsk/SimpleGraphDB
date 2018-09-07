@@ -11,7 +11,7 @@ public class InfinityFile {
         settings = DiskManager.getInstance().getInfinityFileSettings(infinityFileID);
     }
 
-    byte[] read(long start, long length) {
+    public byte[] read(long start, long length) {
         if (start + length > settings.sumFilesSize)
             return null;
 
@@ -25,9 +25,6 @@ public class InfinityFile {
     }
 
     public void write(long start, byte[] data) {
-        if (data == null || data.length == 0 || start + data.length > settings.sumFilesSize)
-            return;
-
         int readingFileIndex = (int) (start / settings.partSize);
         RandomAccessFile writeFile = settings.files.get(readingFileIndex);
         int startInFile = (int) (start - readingFileIndex * settings.partSize);
@@ -39,12 +36,12 @@ public class InfinityFile {
             settings.archThread.write(writeFile, startInFile, data);
     }
 
-    void add(byte[] data) {
-        if (data == null || data.length == 0)
-            return;
+    public long add(byte[] data) {
         RandomAccessFile writeFile = settings.files.get(settings.files.size() - 1);
         settings.mainThread.write(writeFile, settings.sumFilesSize, data);
+        long lastMaxPosition = settings.sumFilesSize;
         settings.sumFilesSize += data.length;
+        return lastMaxPosition;
     }
 
 }

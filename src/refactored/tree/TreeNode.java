@@ -11,6 +11,10 @@ public class TreeNode {
     long[] links;
 
     public TreeNode(byte[] data) {
+        set(data);
+    }
+
+    public void set(byte[] data) {
         this.mask = Arrays.copyOfRange(data, 0, HashTree.MASK_SIZE - 1);
         this.links = Bytes.toLongArray(Arrays.copyOfRange(data, HashTree.MASK_SIZE, TreeNode.SIZE - 1));
     }
@@ -32,4 +36,5 @@ public class TreeNode {
         long start = nodeIndex * SIZE + HashTree.MASK_SIZE +  linkIndex * Long.BYTES;
         file.write(start, Bytes.fromLong(linkValue));
     }
+
 }

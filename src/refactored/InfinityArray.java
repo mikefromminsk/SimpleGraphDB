@@ -5,37 +5,35 @@ import java.nio.ByteBuffer;
 public class InfinityArray extends InfinityFile {
 
     InfinityConstArray meta;
+    public final static int META_SIZE = Long.SIZE * 2;
     // TODO garbage collector
 
     public InfinityArray(String infinityFileID) {
         super(infinityFileID);
-        meta = new InfinityConstArray(infinityFileID + ".meta", 16);
+        meta = new InfinityConstArray(infinityFileID + ".meta", META_SIZE);
     }
 
-    byte[] get(int index) {
+    public byte[] get(int index) {
         long[] metaOfIndex = Bytes.toLongArray(meta.get(index));
         long start = metaOfIndex[0];
         long length = metaOfIndex[1];
         return read(start, length);
     }
 
-    void set(int index, byte[] data) {
-        if (data != null && data.length != 0) {
-            long[] metaOfIndex = Bytes.toLongArray(meta.get(index));
-            long start = metaOfIndex[0];
-            long length = metaOfIndex[1];
-            // TODO increase data to level of 2
-            write(start, data);
-        }
+    public void set(int index, byte[] data) {
+        long[] metaOfIndex = Bytes.toLongArray(meta.get(index));
+        long start = metaOfIndex[0];
+        long length = metaOfIndex[1];
+        // TODO increase data to level of 2
+        write(start, data);
     }
 
-    void add(byte[] data) {
-        if (data != null && data.length != 0) {
-            // TODO increase data to level of 2
-            long[] newMetaData = new long[]{settings.sumFilesSize, data.length};
-            meta.add(Bytes.fromLongArray(newMetaData));
-            super.add(data);
-        }
+    public long add(byte[] data) {
+        // TODO increase data to level of 2
+        long[] newMetaData = new long[]{settings.sumFilesSize, data.length};
+        long metaIndex = meta.add(Bytes.fromLongArray(newMetaData));
+        super.add(data);
+        return metaIndex;
     }
 
 }

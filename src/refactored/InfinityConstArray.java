@@ -9,17 +9,15 @@ public class InfinityConstArray extends InfinityFile {
         this.cellSize = cellSize;
     }
 
-    protected byte[] get(long index) {
+    public byte[] get(long index) {
         return read(index * cellSize, cellSize);
     }
 
-    protected void set(int index, byte[] obj) {
-        if (obj != null && obj.length == cellSize)
-            write(index * cellSize, obj);
+    public void set(int index, byte[] obj) {
+        write(index * cellSize, obj);
     }
 
-    protected void add(byte[] obj) {
-        if (obj != null && obj.length == cellSize)
-            super.add(obj);
+    public long add(byte[] obj) {
+        return super.add(obj) / cellSize;
     }
 }
