@@ -3,7 +3,7 @@ package refactored;
 import java.io.RandomAccessFile;
 
 public class InfinityFile {
-    InfinityFileSettings settings;
+    protected InfinityFileSettings settings;
     // TODO add cache
     // TODO add secure
 

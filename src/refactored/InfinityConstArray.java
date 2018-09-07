@@ -9,16 +9,16 @@ public class InfinityConstArray extends InfinityFile {
         this.cellSize = cellSize;
     }
 
-    byte[] get(long index) {
+    protected byte[] get(long index) {
         return read(index * cellSize, cellSize);
     }
 
-    void set(int index, byte[] obj) {
+    protected void set(int index, byte[] obj) {
         if (obj != null && obj.length == cellSize)
             write(index * cellSize, obj);
     }
 
-    void add(byte[] obj) {
+    protected void add(byte[] obj) {
         if (obj != null && obj.length == cellSize)
             super.add(obj);
     }
