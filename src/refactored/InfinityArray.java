@@ -7,9 +7,9 @@ public class InfinityArray extends InfinityFile {
     InfinityConstArray meta;
     // TODO garbage collector
 
-    InfinityArray(String infinityFileID) {
+    public InfinityArray(String infinityFileID) {
         super(infinityFileID);
-        meta = new InfinityConstArray(infinityFileID + "/meta", 16);
+        meta = new InfinityConstArray(infinityFileID + ".meta", 16);
     }
 
     byte[] get(int index) {

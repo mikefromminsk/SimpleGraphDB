@@ -31,7 +31,7 @@ public class ActionThread implements Runnable {
     public void write(RandomAccessFile file, long offset, byte[] data) {
         if (data == null || data.length == 0)
             return;
-        // TODO merge strings
+        // TODO merge strings not more 512 byte in mainThread and max in achieveTread
         writeActionsBuffer.add(new WriteActionsBuffer(file, (int) offset, data));
         synchronized (syncWriteLoopObject) {
             syncWriteLoopObject.notify();

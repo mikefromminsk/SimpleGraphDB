@@ -4,7 +4,7 @@ public class InfinityConstArray extends InfinityFile {
 
     private final long cellSize;
 
-    InfinityConstArray(String infinityFileID, long cellSize) {
+    public InfinityConstArray(String infinityFileID, long cellSize) {
         super(infinityFileID);
         this.cellSize = cellSize;
     }
