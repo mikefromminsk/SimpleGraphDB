@@ -79,11 +79,15 @@ public class IniFile {
         return entries.get(section);
     }
 
-    public String get(String section, String key, String defaultvalue) {
+    public String get(String section, String key, String defaultValue) {
         Map<String, String> kv = entries.get(section);
         if (kv == null)
-            return defaultvalue;
+            return defaultValue;
         return kv.get(key);
+    }
+
+    public String get(String section, String key) {
+        return get(section, key, null);
     }
 
     public void put(String sectionKey, String key, String value) {
@@ -95,5 +99,19 @@ public class IniFile {
             section.put(key, value);
             entries.put(sectionKey, section);
         }
+    }
+
+    public Long getLong(String section, String key, Long defaultValue) {
+        String data = get(section, key);
+        if (data == null)
+            return defaultValue;
+        return Long.valueOf(data);
+    }
+
+    public Integer getInt(String section, String key, Integer defaultValue) {
+        String data = get(section, key);
+        if (data == null)
+            return defaultValue;
+        return Integer.valueOf(data);
     }
 }

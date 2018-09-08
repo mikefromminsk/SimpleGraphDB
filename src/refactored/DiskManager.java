@@ -1,78 +1,77 @@
 package refactored;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class DiskManager {
 
     private static DiskManager instance;
     private IniFile properties = null;
-    private List<ActionThread> actionThreads = new ArrayList<>();
     private ActionThread mainThread;
-    private ActionThread archThread;
 
     public final static File dbDir = new File("SimpleGraphDB");
     public final static File propertiesFile = new File(dbDir, "settings.properties");
+    private Integer partSize;
+    private String activeDiskDir;
 
     public static DiskManager getInstance() {
-        if (instance == null)
-            instance = new DiskManager();
+        if (instance == null) {
+            try {
+                instance = new DiskManager();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
         return instance;
     }
 
-    private DiskManager() {
+    public final static String DISK_MANAGER_SECTION = "_manager_";
+    public final static String DISK_MANAGER_PART_SIZE_KEY = "part_size";
+    public final static String DISK_MANAGER_ACTIVE_DISK_DIR_KEY = "active_disk";
+
+    private DiskManager() throws FileNotFoundException {
         // TODO double save settings
         // TODO problem when DiskManager init without saving data rights
 
         if (!dbDir.isDirectory())
-            dbDir.mkdir();
-
+            if (!dbDir.mkdir())
+                throw new FileNotFoundException();
         try {
             properties = new IniFile(propertiesFile);
+            if (properties.getSection(DISK_MANAGER_SECTION) == null)
+                initProperties(properties);
+            loadProperties(properties);
+
+            mainThread = new ActionThread();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        if (!loadProps()) {
-            if (!saveProps())
-                loadProps();
-        } else {
-            Map<String, String> disks = properties.getSection("disks");
-            for (String rootDir : disks.values())
-                actionThreads.add(new ActionThread(rootDir));
-            diskTesting();
-        }
     }
 
+    private void loadProperties(IniFile properties) {
+        this.partSize = properties.getInt(DISK_MANAGER_SECTION, DISK_MANAGER_PART_SIZE_KEY, 4096);
+        this.activeDiskDir = properties.get(DISK_MANAGER_SECTION, DISK_MANAGER_ACTIVE_DISK_DIR_KEY, null);
+    }
+
+    private void initProperties(IniFile properties) {
+        properties.put(DISK_MANAGER_SECTION, DISK_MANAGER_PART_SIZE_KEY, "4096");
+        properties.put(DISK_MANAGER_SECTION, DISK_MANAGER_ACTIVE_DISK_DIR_KEY, dbDir.getAbsolutePath());
+    }
+
+    public InfinityFileSettings getInfinityFileSettings(String infinityFileID) {
+        return new InfinityFileSettings(infinityFileID, properties, partSize, mainThread, activeDiskDir);
+    }
+
+
     public void addDisk(String rootDir) {
-        properties.put("disks", "" + actionThreads.size() + 1, rootDir);
-        actionThreads.add(new ActionThread(rootDir));
-        diskTesting();
     }
 
     public void diskTesting() {
         // TODO testing of all disks
-        if (actionThreads.size() > 0) {
-            mainThread = actionThreads.get(0);
-            archThread = actionThreads.get(0);
-        }
     }
-
-
-    private boolean loadProps() {
-        return false;
-    }
-
-    private boolean saveProps() {
-        return false;
-    }
-
-    public InfinityFileSettings getInfinityFileSettings(String infinityFileID) {
-        return new InfinityFileSettings(properties.getSection(infinityFileID), mainThread, archThread);
-    }
-
 
 }

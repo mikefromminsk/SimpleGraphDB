@@ -6,10 +6,6 @@ import java.util.ArrayList;
 
 public class ActionThread implements Runnable {
 
-    public ActionThread(String rootDir) {
-
-    }
-
     static final boolean ACTION_READ = true;
     static final boolean ACTION_WRITE = false;
 

@@ -9,23 +9,24 @@ import java.util.Map;
 
 public class InfinityFileSettings {
 
+    public final static String INFINITY_FILE_PART_PREFIX = "part";
     public long partSize;
-    public long maxCacheSize;
-    public long maxCacheObjectCount;
-    private ArrayList<RandomAccessFile> files = new ArrayList<>();
     public long sumFilesSize = 0;
     public ActionThread mainThread;
-    public ActionThread archThread;
+    private ArrayList<RandomAccessFile> files = new ArrayList<>();
 
-    public InfinityFileSettings(Map<String, String> settings, ActionThread mainThread, ActionThread archThread) {
+    public InfinityFileSettings(String infinityFileID, IniFile properties, Integer partSize, ActionThread mainThread, String activeDiskDir) {
         this.mainThread = mainThread;
-        this.archThread = archThread;
+        this.partSize = partSize;
+/*
 
-        partSize = Long.parseLong(settings.getOrDefault("partSize", "4096"));
-        maxCacheSize = Long.parseLong(settings.getOrDefault("maxCacheSize", "10"));
-        maxCacheObjectCount = Long.parseLong(settings.getOrDefault("maxCacheObjectCount", "10"));
+        Map<String, String> fileSettings = properties.getSection(INFINITY_FILE_PART_PREFIX);
+        if (fileSettings == null){
+            String
+            properties.put(infinityFileID, INFINITY_FILE_PART_PREFIX + "0", );
+        }
 
-        for (int i = 0; settings.containsKey("part" + i); i++) {
+        for (int i = 0; settings.containsKey(INFINITY_FILE_PART_PREFIX + i); i++) {
             try {
                 RandomAccessFile file = new RandomAccessFile(settings.get("part" + i), "rw");
                 files.add(file);
@@ -34,6 +35,8 @@ public class InfinityFileSettings {
                 e.printStackTrace();
             }
         }
+*/
+
     }
 
     RandomAccessFile getFile(int index){
