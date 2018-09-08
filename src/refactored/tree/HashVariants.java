@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class HashVariants {
 
     byte[] mask;
-    ArrayList<Hash> links;
+    ArrayList<Hash> hashs;
 
     public HashVariants(byte[] data) {
         this.mask = Arrays.copyOfRange(data, 0, HashTree.MASK_SIZE - 1);
@@ -16,15 +16,15 @@ public class HashVariants {
         for (int i = 0; i < hashVariantsCount; i++) {
             int startHashData = HashTree.MASK_SIZE + i * Hash.SIZE - 1;
             long[] hashData = Bytes.toLongArray(Arrays.copyOfRange(data, startHashData, startHashData + Hash.SIZE));
-            links.add(new Hash(hashData[0], hashData[1], hashData[2]));
+            hashs.add(new Hash(hashData[0], hashData[1], hashData[2]));
         }
     }
 
     byte[] toBytes() {
-        byte[] data = new byte[HashTree.MASK_SIZE + links.size() * Hash.SIZE];
+        byte[] data = new byte[HashTree.MASK_SIZE + hashs.size() * Hash.SIZE];
         System.arraycopy(mask, 0, data, 0, HashTree.MASK_SIZE);
-        for (int i = 0; i < links.size(); i++)
-            System.arraycopy(links.get(i).getBytes(), 0, data, HashTree.MASK_SIZE + i * Hash.SIZE - 1, Hash.SIZE);
+        for (int i = 0; i < hashs.size(); i++)
+            System.arraycopy(hashs.get(i).getBytes(), 0, data, HashTree.MASK_SIZE + i * Hash.SIZE - 1, Hash.SIZE);
         return data;
     }
 }
