@@ -12,7 +12,7 @@ public class InfinityFileSettings {
     public long partSize;
     public long maxCacheSize;
     public long maxCacheObjectCount;
-    public ArrayList<RandomAccessFile> files = new ArrayList<>();
+    private ArrayList<RandomAccessFile> files = new ArrayList<>();
     public long sumFilesSize = 0;
     public ActionThread mainThread;
     public ActionThread archThread;
@@ -21,7 +21,7 @@ public class InfinityFileSettings {
         this.mainThread = mainThread;
         this.archThread = archThread;
 
-        partSize = Long.parseLong(settings.getOrDefault("partSize", "10"));
+        partSize = Long.parseLong(settings.getOrDefault("partSize", "4096"));
         maxCacheSize = Long.parseLong(settings.getOrDefault("maxCacheSize", "10"));
         maxCacheObjectCount = Long.parseLong(settings.getOrDefault("maxCacheObjectCount", "10"));
 
@@ -34,5 +34,11 @@ public class InfinityFileSettings {
                 e.printStackTrace();
             }
         }
+    }
+
+    RandomAccessFile getFile(int index){
+        // TODO create file in action thread
+
+        return files.get(index);
     }
 }
