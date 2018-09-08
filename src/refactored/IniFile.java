@@ -8,17 +8,33 @@ import java.util.regex.Pattern;
 
 public class IniFile {
 
+    private File iniFile;
+    //TODO add comments pattern
     private Pattern section = Pattern.compile("\\s*\\[([^]]*)\\]\\s*");
     private Pattern keyValue = Pattern.compile("\\s*([^=]*)=(.*)");
-    private String filePath = null;
     private Map<String, Map<String, String>> entries = new HashMap<>();
 
-    public IniFile(String filePath) throws IOException {
-        load(filePath);
+    public IniFile(File file) throws IOException {
+        if (file == null)
+            throw new NullPointerException();
+        if (!file.isFile()){
+            if (!file.createNewFile())
+                throw new FileNotFoundException();
+        }
+        iniFile = file;
+        load();
     }
 
-    public void load(String filePath) throws IOException {
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+    public IniFile(String filePath) throws IOException {
+        this(new File(filePath));
+    }
+
+    public IniFile(File dir, String fileName) throws IOException {
+        this(dir.getAbsolutePath() + "/" + fileName);
+    }
+
+    public void load() throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(iniFile))) {
             String line;
             String section = null;
             while ((line = br.readLine()) != null) {
@@ -38,7 +54,6 @@ public class IniFile {
                 }
             }
         }
-        this.filePath = filePath;
     }
 
     public void save(String filePath) throws FileNotFoundException {

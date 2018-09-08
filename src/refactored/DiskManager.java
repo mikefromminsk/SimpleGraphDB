@@ -1,5 +1,6 @@
 package refactored;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +8,14 @@ import java.util.Map;
 
 public class DiskManager {
 
-    private static final String PROPERTIES_FILE_NAME = "disk_manager_main.prop";
     private static DiskManager instance;
     private IniFile properties = null;
     private List<ActionThread> actionThreads = new ArrayList<>();
     private ActionThread mainThread;
     private ActionThread archThread;
+
+    public final static File dbDir = new File("SimpleGraphDB");
+    public final static File propertiesFile = new File(dbDir, "settings.properties");
 
     public static DiskManager getInstance() {
         if (instance == null)
@@ -23,6 +26,16 @@ public class DiskManager {
     private DiskManager() {
         // TODO double save settings
         // TODO problem when DiskManager init without saving data rights
+
+        if (!dbDir.isDirectory())
+            dbDir.mkdir();
+
+        try {
+            properties = new IniFile(propertiesFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         if (!loadProps()) {
             if (!saveProps())
                 loadProps();
@@ -48,22 +61,13 @@ public class DiskManager {
         }
     }
 
+
     private boolean loadProps() {
-        try {
-            properties.load(PROPERTIES_FILE_NAME);
-            return true;
-        } catch (IOException ignored) {
-            return false;
-        }
+        return false;
     }
 
     private boolean saveProps() {
-        try {
-            properties.save(PROPERTIES_FILE_NAME);
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
+        return false;
     }
 
     public InfinityFileSettings getInfinityFileSettings(String infinityFileID) {
