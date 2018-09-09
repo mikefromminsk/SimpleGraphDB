@@ -132,4 +132,8 @@ public class InfinityFile {
         return lastSumFileSize;
     }
 
+    public void flush() {
+        for (RandomAccessFile file : fileData.files)
+            mainThread.flush(file);
+    }
 }

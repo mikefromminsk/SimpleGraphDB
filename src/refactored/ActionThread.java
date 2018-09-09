@@ -3,6 +3,7 @@ package refactored;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class ActionThread implements Runnable {
 
@@ -27,15 +28,20 @@ public class ActionThread implements Runnable {
                         return data;
                     } else {
                         byte[] rightData = read(file, startOfData + lengthInCashData, lengthOfData - lengthInCashData);
-                        System.arraycopy(rightData, 0, data, lengthInCashData - 1, rightData.length);
+                        System.arraycopy(rightData, 0, data, lengthInCashData, rightData.length);
                         return data;
                     }
-                } else if (startOfData < startOfCache && endOfData >= endOfCache) {
-                    int lengthInCashData = endOfData - startOfCache;
-                    int offsetInResult = lengthOfData - lengthInCashData;
+                } else if (startOfData < startOfCache && endOfData > startOfCache) {
+                    int lengthInCashData = Math.min(endOfData - startOfCache, endOfCache - startOfCache);
+                    int offsetInResult = startOfCache - startOfData;
                     System.arraycopy(actionsBuffer.data, 0, data, offsetInResult, lengthInCashData);
-                    byte[] leftData = read(file, startOfData, lengthOfData - lengthInCashData);
+                    byte[] leftData = read(file, startOfData, offsetInResult);
                     System.arraycopy(leftData, 0, data, 0, leftData.length);
+                    if (endOfData > endOfCache){
+                        byte[] rightData = read(file, endOfCache, endOfData - endOfCache);
+                        offsetInResult = endOfCache - startOfData;
+                        System.arraycopy(rightData, 0, data, offsetInResult, rightData.length);
+                    }
                     return data;
                 }
             }
@@ -52,7 +58,7 @@ public class ActionThread implements Runnable {
         // TODO merge strings not more 512 byte in mainThread and max in achieveTread
         writeActionsBuffer.add(new WriteActionsBuffer(file, (int) offset, data));
         synchronized (syncWriteLoopObject) {
-            syncWriteLoopObject.notify();
+            //syncWriteLoopObject.notify();
         }
     }
 
@@ -102,4 +108,15 @@ public class ActionThread implements Runnable {
         }
     }
 
+    public void flush(RandomAccessFile file) {
+
+        for (Iterator<WriteActionsBuffer> it = writeActionsBuffer.iterator(); it.hasNext(); ) {
+            WriteActionsBuffer actionsBuffer = it.next();
+            if (actionsBuffer.file == file) {
+                doAction(ACTION_WRITE, actionsBuffer.file, actionsBuffer.offset, actionsBuffer.data);
+                it.remove();
+            }
+
+        }
+    }
 }
