@@ -1,7 +1,5 @@
 package refactored;
 
-import java.nio.ByteBuffer;
-
 public class InfinityArray extends InfinityFile {
 
     InfinityConstArray meta;
