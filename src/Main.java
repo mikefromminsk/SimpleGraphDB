@@ -39,7 +39,7 @@ public class Main {
             System.out.print("Введите путь №2 для создания репозитория:");
             String path2 = new Scanner(System.in).nextLine();
             System.out.print("Введите максимальный размер части:");
-            int size = new Scanner(System.in).nextInt();
+            int size = new Scanner(System.in).nextInt(); //размер части
             DiskManager ds = new DiskManager(path1, path2, size);
             System.out.println("Репозиторий №" + ds.GetNameManager() + " успешно создан");
 
