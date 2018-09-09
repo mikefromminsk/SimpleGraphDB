@@ -30,7 +30,7 @@ public class InfinityArray extends InfinityFile {
 
     public long add(byte[] data) {
         // TODO increase data to level of 2
-        long[] newMetaData = new long[]{sumFilesSize, data.length};
+        long[] newMetaData = new long[]{fileData.sumFilesSize, data.length};
         long metaIndex = meta.add(Bytes.fromLongArray(newMetaData));
         super.add(data);
         return metaIndex;

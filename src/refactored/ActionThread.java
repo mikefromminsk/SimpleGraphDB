@@ -8,21 +8,35 @@ public class ActionThread implements Runnable {
 
     static final boolean ACTION_READ = true;
     static final boolean ACTION_WRITE = false;
-
     private int threadsWaiting = 0;
+    private final Object syncWriteLoopObject = 1;
+    private ArrayList<WriteActionsBuffer> writeActionsBuffer = new ArrayList<>();
 
     public byte[] read(RandomAccessFile file, int offset, int length) {
-        threadsWaiting++;
         byte[] data = new byte[length];
-        boolean success = doAction(ACTION_READ, file, offset, length, data);
+        for (WriteActionsBuffer actionsBuffer : writeActionsBuffer) {
+            if (actionsBuffer.file == file &&
+                    offset >= actionsBuffer.offset &&
+                    offset < actionsBuffer.offset + actionsBuffer.data.length) {
+                int endOfCacheBlock = actionsBuffer.offset + actionsBuffer.data.length;
+                int lengthInCashData = Math.min(endOfCacheBlock - offset, length);
+                int offsetInCashData = offset - actionsBuffer.offset;
+                System.arraycopy(actionsBuffer.data, offsetInCashData, data, 0, lengthInCashData);
+                if (length == lengthInCashData) {
+                    return data;
+                } else {
+                    byte[] rightData = read(file, offset + lengthInCashData, length - lengthInCashData);
+                    System.arraycopy(rightData, 0, data, lengthInCashData - 1, rightData.length);
+                    return data;
+                }
+            }
+        }
+        threadsWaiting++;
+        boolean success = doAction(ACTION_READ, file, offset, data);
         if (success)
             return data;
         return null;
     }
-
-    private final Object syncWriteLoopObject = 1;
-
-    private ArrayList<WriteActionsBuffer> writeActionsBuffer = new ArrayList<>();
 
     public void write(RandomAccessFile file, long offset, byte[] data) {
         if (data == null || data.length == 0)
@@ -39,7 +53,7 @@ public class ActionThread implements Runnable {
         while (true) {
             if (threadsWaiting == 0 && writeActionsBuffer.size() > 0) {
                 WriteActionsBuffer action = writeActionsBuffer.get(0);
-                boolean success = doAction(ACTION_WRITE, action.file, action.offset, action.data.length, action.data);
+                boolean success = doAction(ACTION_WRITE, action.file, action.offset, action.data);
                 if (success)
                     writeActionsBuffer.remove(action);
             } else {
@@ -53,10 +67,11 @@ public class ActionThread implements Runnable {
         }
     }
 
-    synchronized boolean doAction(boolean actionType, RandomAccessFile file, int offset, int length, byte[] data) {
+    synchronized boolean doAction(boolean actionType, RandomAccessFile file, int offset, byte[] data) {
         if (actionType == ACTION_READ) {
             try {
-                file.read(data, offset, length);
+                file.seek(offset);
+                file.read(data);
                 return true;
             } catch (IOException e) {
                 return false;
@@ -70,7 +85,8 @@ public class ActionThread implements Runnable {
             }
         } else {
             try {
-                file.write(data, offset, length);
+                file.seek(offset);
+                file.write(data);
                 return true;
             } catch (IOException e) {
                 return false;

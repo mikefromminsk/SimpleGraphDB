@@ -1,6 +1,8 @@
 package refactored;
 
 import java.io.*;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -49,7 +51,7 @@ public class IniFile {
                         Map<String, String> kv = entries.get(section);
                         if (kv == null)
                             entries.put(section, kv = new HashMap<>());
-                        kv.put(key, value);
+                        kv.put(key, URLDecoder.decode(value));
                     }
                 }
             }
@@ -67,9 +69,10 @@ public class IniFile {
                 for (String paramKey : section.keySet()) {
                     String paramValue = section.get(paramKey);
                     if (paramValue != null)
-                        out.println(section + "=" + paramValue.replace("\n", ""));
+                        out.println(paramKey + "=" + URLEncoder.encode(paramValue));
                 }
             }
+            out.close();
         } catch (IOException ignored) {
         }
     }

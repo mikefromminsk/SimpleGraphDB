@@ -3,8 +3,8 @@ package refactored;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DiskManager {
 
@@ -44,6 +44,8 @@ public class DiskManager {
             loadProperties(properties);
 
             mainThread = new ActionThread();
+            Thread thread = new Thread(mainThread);
+            thread.start();
 
         } catch (IOException e) {
             e.printStackTrace();

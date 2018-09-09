@@ -4,20 +4,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
-public class InfinityFile  {
+public class InfinityFile {
     // TODO add secure
     // TODO add cache
 
     public final static int MAX_STORAGE_DATA_IN_DB = 2048;
     public final static String INFINITY_FILE_PART_PREFIX = "part";
     public long partSize;
-    public long sumFilesSize = 0;
-    private ArrayList<RandomAccessFile> files = new ArrayList<>();
     String infinityFileID;
+    protected InfinityFileData fileData;
     ActionThread mainThread;
+    public static Map<String, InfinityFileData> infinityFileCache = new HashMap<>();
 
     public InfinityFile(String infinityFileID) {
         this.infinityFileID = infinityFileID;
@@ -25,23 +25,28 @@ public class InfinityFile  {
         this.mainThread = diskManager.mainThread;
         this.partSize = diskManager.partSize;
 
-        Map<String, String> fileSettings = diskManager.properties.getSection(infinityFileID);
-        if (fileSettings != null)
-            for (int i = 0; fileSettings.containsKey(INFINITY_FILE_PART_PREFIX + i); i++) {
-                try {
-                    String partFileName = fileSettings.get(INFINITY_FILE_PART_PREFIX + i);
-                    RandomAccessFile partRandomAccessFile = new RandomAccessFile(partFileName, "rw");
-                    files.add(partRandomAccessFile);
-                    sumFilesSize += partRandomAccessFile.length();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        fileData = infinityFileCache.get(infinityFileID);
+        if (fileData == null) {
+            fileData = new InfinityFileData();
+            Map<String, String> fileSettings = diskManager.properties.getSection(infinityFileID);
+            if (fileSettings != null)
+                for (int i = 0; fileSettings.containsKey(INFINITY_FILE_PART_PREFIX + i); i++) {
+                    try {
+                        String partFileName = fileSettings.get(INFINITY_FILE_PART_PREFIX + i);
+                        RandomAccessFile partRandomAccessFile = new RandomAccessFile(partFileName, "rw");
+                        fileData.files.add(partRandomAccessFile);
+                        fileData.sumFilesSize += partRandomAccessFile.length();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
+        }
+
     }
 
     RandomAccessFile getFile(int index) {
         // TODO create file in action thread
-        if (index == files.size()){
+        if (index == fileData.files.size()) {
             try {
                 DiskManager diskManager = DiskManager.getInstance();
                 String partName = INFINITY_FILE_PART_PREFIX + index;
@@ -49,21 +54,21 @@ public class InfinityFile  {
                 File partFile = new File(diskManager.dbDir, newFileName);
                 diskManager.properties.put(infinityFileID, partName, partFile.getAbsolutePath());
                 RandomAccessFile partRandomAccessFile = new RandomAccessFile(partFile, "rw");
-                files.add(partRandomAccessFile);
+                fileData.files.add(partRandomAccessFile);
                 return partRandomAccessFile;
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         }
-        return files.get(index);
+        return fileData.files.get(index);
     }
 
     public byte[] read(long start, long length) {
         long end = start + length;
-        if (end > sumFilesSize)
+        if (end > fileData.sumFilesSize)
             return null;
 
-        if (length > MAX_STORAGE_DATA_IN_DB){
+        if (length > MAX_STORAGE_DATA_IN_DB) {
             // TODO return file descriptor
         }
 
@@ -89,10 +94,10 @@ public class InfinityFile  {
     public void write(long start, byte[] data) {
         long length = data.length;
         long end = start + length;
-        if (start > sumFilesSize)
+        if (start > fileData.sumFilesSize)
             return;
 
-        if (length > MAX_STORAGE_DATA_IN_DB){
+        if (length > MAX_STORAGE_DATA_IN_DB) {
             // TODO save to file system
         }
 
@@ -102,7 +107,7 @@ public class InfinityFile  {
         RandomAccessFile firstWriteFile = getFile(startFileIndex);
         RandomAccessFile secondWriteFile = getFile(endFileIndex);
 
-        sumFilesSize += data.length;
+        fileData.sumFilesSize += data.length;
 
         if (startFileIndex == endFileIndex) {
             int startInFile = (int) (start - startFileIndex * partSize);
@@ -122,9 +127,9 @@ public class InfinityFile  {
     }
 
     public long add(byte[] data) {
-        long lastMaxPosition = sumFilesSize;
-        write(lastMaxPosition, data);
-        return lastMaxPosition;
+        long lastSumFileSize = fileData.sumFilesSize;
+        write(lastSumFileSize, data);
+        return lastSumFileSize;
     }
 
 }
