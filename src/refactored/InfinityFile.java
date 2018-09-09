@@ -1,41 +1,87 @@
 package refactored;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.Map;
 
-public class InfinityFile {
-    public final static int MAX_STORAGE_DATA_IN_DB = 2048;
-    protected InfinityFileSettings settings;
-    // TODO add cache
+public class InfinityFile  {
     // TODO add secure
+    // TODO add cache
 
-    InfinityFile(String infinityFileID) {
-        settings = DiskManager.getInstance().getInfinityFileSettings(infinityFileID);
+    public final static int MAX_STORAGE_DATA_IN_DB = 2048;
+    public final static String INFINITY_FILE_PART_PREFIX = "part";
+    public long partSize;
+    public long sumFilesSize = 0;
+    private ArrayList<RandomAccessFile> files = new ArrayList<>();
+    String infinityFileID;
+    ActionThread mainThread;
+
+    public InfinityFile(String infinityFileID) {
+        this.infinityFileID = infinityFileID;
+        DiskManager diskManager = DiskManager.getInstance();
+        this.mainThread = diskManager.mainThread;
+        this.partSize = diskManager.partSize;
+
+        Map<String, String> fileSettings = diskManager.properties.getSection(infinityFileID);
+        if (fileSettings != null)
+            for (int i = 0; fileSettings.containsKey(INFINITY_FILE_PART_PREFIX + i); i++) {
+                try {
+                    String partFileName = fileSettings.get(INFINITY_FILE_PART_PREFIX + i);
+                    RandomAccessFile partRandomAccessFile = new RandomAccessFile(partFileName, "rw");
+                    files.add(partRandomAccessFile);
+                    sumFilesSize += partRandomAccessFile.length();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+    }
+
+    RandomAccessFile getFile(int index) {
+        // TODO create file in action thread
+        if (index == files.size()){
+            try {
+                DiskManager diskManager = DiskManager.getInstance();
+                String partName = INFINITY_FILE_PART_PREFIX + index;
+                String newFileName = infinityFileID + "." + partName;
+                File partFile = new File(diskManager.dbDir, newFileName);
+                diskManager.properties.put(infinityFileID, partName, partFile.getAbsolutePath());
+                RandomAccessFile partRandomAccessFile = new RandomAccessFile(partFile, "rw");
+                files.add(partRandomAccessFile);
+                return partRandomAccessFile;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return files.get(index);
     }
 
     public byte[] read(long start, long length) {
         long end = start + length;
-        if (end > settings.sumFilesSize)
+        if (end > sumFilesSize)
             return null;
 
         if (length > MAX_STORAGE_DATA_IN_DB){
             // TODO return file descriptor
         }
 
-        int startFileIndex = (int) (start / settings.partSize);
-        int endFileIndex = (int) (end / settings.partSize);
+        int startFileIndex = (int) (start / partSize);
+        int endFileIndex = (int) (end / partSize);
         if (startFileIndex == endFileIndex) {
-            RandomAccessFile readingFile = settings.getFile(startFileIndex);
-            int startInFile = (int) (start % settings.partSize);
-            return settings.mainThread.read(readingFile, startInFile, (int) length);
+            RandomAccessFile readingFile = getFile(startFileIndex);
+            int startInFile = (int) (start % partSize);
+            return mainThread.read(readingFile, startInFile, (int) length);
         } else {
-            RandomAccessFile firstFile = settings.getFile(startFileIndex);
-            RandomAccessFile secondFile = settings.getFile(endFileIndex);
-            int lengthInSecondFile = (int) (end % settings.partSize);
+            RandomAccessFile firstFile = getFile(startFileIndex);
+            RandomAccessFile secondFile = getFile(endFileIndex);
+            int lengthInSecondFile = (int) (end % partSize);
             int lengthInFirstFile = (int) (length - lengthInSecondFile);
-            int startInFirstFile = (int) (start % settings.partSize);
+            int startInFirstFile = (int) (start % partSize);
             int startInSecondFile = 0;
-            byte[] dataFromFirstFile = settings.mainThread.read(firstFile, startInFirstFile, lengthInFirstFile);
-            byte[] dataFromSecondFile = settings.mainThread.read(secondFile, startInSecondFile, lengthInSecondFile);
+            byte[] dataFromFirstFile = mainThread.read(firstFile, startInFirstFile, lengthInFirstFile);
+            byte[] dataFromSecondFile = mainThread.read(secondFile, startInSecondFile, lengthInSecondFile);
             return Bytes.concat(dataFromFirstFile, dataFromSecondFile);
         }
     }
@@ -43,40 +89,40 @@ public class InfinityFile {
     public void write(long start, byte[] data) {
         long length = data.length;
         long end = start + length;
-        if (start > settings.sumFilesSize)
+        if (start > sumFilesSize)
             return;
 
         if (length > MAX_STORAGE_DATA_IN_DB){
             // TODO save to file system
         }
 
-        int startFileIndex = (int) (start / settings.partSize);
-        int endFileIndex = (int) (end / settings.partSize);
+        int startFileIndex = (int) (start / partSize);
+        int endFileIndex = (int) (end / partSize);
 
-        RandomAccessFile firstWriteFile = settings.getFile(startFileIndex);
-        RandomAccessFile secondWriteFile = settings.getFile(endFileIndex);
+        RandomAccessFile firstWriteFile = getFile(startFileIndex);
+        RandomAccessFile secondWriteFile = getFile(endFileIndex);
 
-        settings.sumFilesSize += data.length;
+        sumFilesSize += data.length;
 
         if (startFileIndex == endFileIndex) {
-            int startInFile = (int) (start - startFileIndex * settings.partSize);
-            settings.mainThread.write(firstWriteFile, startInFile, data);
+            int startInFile = (int) (start - startFileIndex * partSize);
+            mainThread.write(firstWriteFile, startInFile, data);
             // TODO archive thread
         } else {
-            int lengthInSecondFile = (int) (end % settings.partSize);
+            int lengthInSecondFile = (int) (end % partSize);
             int lengthInFirstFile = (int) (length - lengthInSecondFile);
-            int startInFirstFile = (int) (start % settings.partSize);
+            int startInFirstFile = (int) (start % partSize);
             int startInSecondFile = 0;
             byte[] dataToFirstFile = new byte[lengthInFirstFile];
             byte[] dataToSecondFile = new byte[lengthInSecondFile];
-            settings.mainThread.write(firstWriteFile, startInFirstFile, dataToFirstFile);
-            settings.mainThread.write(secondWriteFile, startInSecondFile, dataToSecondFile);
+            mainThread.write(firstWriteFile, startInFirstFile, dataToFirstFile);
+            mainThread.write(secondWriteFile, startInSecondFile, dataToSecondFile);
             // TODO archive thread
         }
     }
 
     public long add(byte[] data) {
-        long lastMaxPosition = settings.sumFilesSize;
+        long lastMaxPosition = sumFilesSize;
         write(lastMaxPosition, data);
         return lastMaxPosition;
     }

@@ -19,7 +19,7 @@ public class HashTree extends InfinityConstArray {
         super(infinityFileID, TreeNode.SIZE);
         hashKeys = new InfinityArray(infinityFileID + ".keys");
         hashes = new InfinityArray(infinityFileID + ".hashes");
-        if (settings.sumFilesSize == 0) {
+        if (sumFilesSize == 0) {
             root = new TreeNode("****".getBytes(), new long[HashTree.LINKS_SIZE]);
             add(root.getBytes());
         } else {

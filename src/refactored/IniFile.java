@@ -17,7 +17,7 @@ public class IniFile {
     public IniFile(File file) throws IOException {
         if (file == null)
             throw new NullPointerException();
-        if (!file.isFile()){
+        if (!file.isFile()) {
             if (!file.createNewFile())
                 throw new FileNotFoundException();
         }
@@ -56,18 +56,21 @@ public class IniFile {
         }
     }
 
-    public void save(String filePath) throws FileNotFoundException {
-        File saveFile = new File(filePath);
-        saveFile.delete();
-        PrintWriter out = new PrintWriter(saveFile);
-        for (String sectionKey : entries.keySet()) {
-            out.println("[" + sectionKey + "]");
-            Map<String, String> section = entries.get(sectionKey);
-            for (String paramKey : section.keySet()) {
-                String paramValue = section.get(paramKey);
-                if (paramValue != null)
-                    out.println(section + "=" + paramValue.replace("\n", ""));
+    public void save() {
+        try {
+            iniFile.delete();
+            iniFile.createNewFile();
+            PrintWriter out = new PrintWriter(iniFile);
+            for (String sectionKey : entries.keySet()) {
+                out.println("[" + sectionKey + "]");
+                Map<String, String> section = entries.get(sectionKey);
+                for (String paramKey : section.keySet()) {
+                    String paramValue = section.get(paramKey);
+                    if (paramValue != null)
+                        out.println(section + "=" + paramValue.replace("\n", ""));
+                }
             }
+        } catch (IOException ignored) {
         }
     }
 
@@ -92,13 +95,14 @@ public class IniFile {
 
     public void put(String sectionKey, String key, String value) {
         Map<String, String> section = entries.get(sectionKey);
-        if (section != null){
+        if (section != null) {
             section.put(key, value);
-        }else{
+        } else {
             section = new HashMap<>();
             section.put(key, value);
             entries.put(sectionKey, section);
         }
+        save();
     }
 
     public Long getLong(String section, String key, Long defaultValue) {
