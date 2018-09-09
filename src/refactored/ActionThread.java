@@ -12,27 +12,35 @@ public class ActionThread implements Runnable {
     private final Object syncWriteLoopObject = 1;
     private ArrayList<WriteActionsBuffer> writeActionsBuffer = new ArrayList<>();
 
-    public byte[] read(RandomAccessFile file, int offset, int length) {
-        byte[] data = new byte[length];
-        for (WriteActionsBuffer actionsBuffer : writeActionsBuffer) {
-            if (actionsBuffer.file == file &&
-                    offset >= actionsBuffer.offset &&
-                    offset < actionsBuffer.offset + actionsBuffer.data.length) {
-                int endOfCacheBlock = actionsBuffer.offset + actionsBuffer.data.length;
-                int lengthInCashData = Math.min(endOfCacheBlock - offset, length);
-                int offsetInCashData = offset - actionsBuffer.offset;
-                System.arraycopy(actionsBuffer.data, offsetInCashData, data, 0, lengthInCashData);
-                if (length == lengthInCashData) {
-                    return data;
-                } else {
-                    byte[] rightData = read(file, offset + lengthInCashData, length - lengthInCashData);
-                    System.arraycopy(rightData, 0, data, lengthInCashData - 1, rightData.length);
+    public byte[] read(RandomAccessFile file, int startOfData, int lengthOfData) {
+        byte[] data = new byte[lengthOfData];
+        int endOfData = startOfData + lengthOfData;
+        for (WriteActionsBuffer actionsBuffer : writeActionsBuffer)
+            if (actionsBuffer.file == file) {
+                int startOfCache = actionsBuffer.offset;
+                int endOfCache = actionsBuffer.offset + actionsBuffer.data.length;
+                if (startOfData >= startOfCache && startOfData < endOfCache) {
+                    int lengthInCashData = Math.min(endOfCache - startOfData, lengthOfData);
+                    int offsetInCashData = startOfData - startOfCache;
+                    System.arraycopy(actionsBuffer.data, offsetInCashData, data, 0, lengthInCashData);
+                    if (lengthOfData == lengthInCashData) {
+                        return data;
+                    } else {
+                        byte[] rightData = read(file, startOfData + lengthInCashData, lengthOfData - lengthInCashData);
+                        System.arraycopy(rightData, 0, data, lengthInCashData - 1, rightData.length);
+                        return data;
+                    }
+                } else if (startOfData < startOfCache && endOfData >= endOfCache) {
+                    int lengthInCashData = endOfData - startOfCache;
+                    int offsetInResult = lengthOfData - lengthInCashData;
+                    System.arraycopy(actionsBuffer.data, 0, data, offsetInResult, lengthInCashData);
+                    byte[] leftData = read(file, startOfData, lengthOfData - lengthInCashData);
+                    System.arraycopy(leftData, 0, data, 0, leftData.length);
                     return data;
                 }
             }
-        }
         threadsWaiting++;
-        boolean success = doAction(ACTION_READ, file, offset, data);
+        boolean success = doAction(ACTION_READ, file, startOfData, data);
         if (success)
             return data;
         return null;
