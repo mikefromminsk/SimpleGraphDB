@@ -1,37 +1,51 @@
 package refactored;
 
-public class InfinityArray {
-/*
-    InfinityConstArray meta;
-    public final static int META_SIZE = Long.SIZE * 2;
+public class InfinityArray extends InfinityFile {
     // TODO garbage collector
+
+    private InfinityConstArray meta;
 
     public InfinityArray(String infinityFileID) {
         super(infinityFileID);
-        meta = new InfinityConstArray(infinityFileID + ".meta", META_SIZE);
+        meta = new InfinityConstArray(infinityFileID + ".meta", new MetaNode());
     }
 
     public byte[] get(int index) {
-        long[] metaOfIndex = Bytes.toLongArray(meta.get(index));
-        long start = metaOfIndex[0];
-        long length = metaOfIndex[1];
-        return read(start, length);
+        MetaNode metaNode = new MetaNode();
+        meta.get(index, metaNode);
+        return read(metaNode.start, metaNode.length);
     }
 
     public void set(int index, byte[] data) {
-        long[] metaOfIndex = Bytes.toLongArray(meta.get(index));
-        long start = metaOfIndex[0];
-        long length = metaOfIndex[1];
-        // TODO increase data to level of 2
-        write(start, data);
+        MetaNode metaNode = new MetaNode();
+        meta.get(index, metaNode);
+        int lastSectorLength = getSectorLength((int) metaNode.length);
+        int newSectorLength = getSectorLength(data.length);
+        if (newSectorLength > lastSectorLength) {
+            // TODO get from gc
+        } else {
+
+        }
     }
 
     public long add(byte[] data) {
-        // TODO increase data to level of 2
-        long[] newMetaData = new long[]{fileData.sumFilesSize, data.length};
-        long metaIndex = meta.add(Bytes.fromLongArray(newMetaData));
-        super.add(data);
-        return metaIndex;
-    }*/
+        MetaNode metaNode = new MetaNode();
+        metaNode.start = add(dataToSector(data));
+        metaNode.length = data.length;
+        return meta.add(metaNode);
+    }
+
+    int getSectorLength(int dataLength) {
+        int sectorSize = 1;
+        while (sectorSize < dataLength)
+            sectorSize *= 2;
+        return sectorSize;
+    }
+
+    byte[] dataToSector(byte[] data) {
+        byte[] result = new byte[getSectorLength(data.length)];
+        System.arraycopy(data, 0, result, 0, data.length);
+        return result;
+    }
 
 }
