@@ -3,50 +3,30 @@ package refactored;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public class ActionThread implements Runnable {
 
-    static final boolean ACTION_READ = true;
-    static final boolean ACTION_WRITE = false;
+    private static final boolean ACTION_READ = true;
+    private static final boolean ACTION_WRITE = false;
     private int threadsWaiting = 0;
     private final Object syncWriteLoopObject = 1;
-    private ArrayList<WriteActionsBuffer> writeActionsBuffer = new ArrayList<>();
+    private Map<RandomAccessFile, Map<Integer, CacheData>> cache = new HashMap<>();
+    private ArrayList<CacheData> writeSequences = new ArrayList<>();
 
-    public byte[] read(RandomAccessFile file, int startOfData, int lengthOfData) {
-        byte[] data = new byte[lengthOfData];
-        int endOfData = startOfData + lengthOfData;
-        for (WriteActionsBuffer actionsBuffer : writeActionsBuffer)
-            if (actionsBuffer.file == file) {
-                int startOfCache = actionsBuffer.offset;
-                int endOfCache = actionsBuffer.offset + actionsBuffer.data.length;
-                if (startOfData >= startOfCache && startOfData < endOfCache) {
-                    int lengthInCashData = Math.min(endOfCache - startOfData, lengthOfData);
-                    int offsetInCashData = startOfData - startOfCache;
-                    System.arraycopy(actionsBuffer.data, offsetInCashData, data, 0, lengthInCashData);
-                    if (lengthOfData == lengthInCashData) {
-                        return data;
-                    } else {
-                        byte[] rightData = read(file, startOfData + lengthInCashData, lengthOfData - lengthInCashData);
-                        System.arraycopy(rightData, 0, data, lengthInCashData, rightData.length);
-                        return data;
-                    }
-                } else if (startOfData < startOfCache && endOfData > startOfCache) {
-                    int lengthInCashData = Math.min(endOfData - startOfCache, endOfCache - startOfCache);
-                    int offsetInResult = startOfCache - startOfData;
-                    System.arraycopy(actionsBuffer.data, 0, data, offsetInResult, lengthInCashData);
-                    byte[] leftData = read(file, startOfData, offsetInResult);
-                    System.arraycopy(leftData, 0, data, 0, leftData.length);
-                    if (endOfData > endOfCache){
-                        byte[] rightData = read(file, endOfCache, endOfData - endOfCache);
-                        offsetInResult = endOfCache - startOfData;
-                        System.arraycopy(rightData, 0, data, offsetInResult, rightData.length);
-                    }
-                    return data;
-                }
-            }
+    public byte[] read(RandomAccessFile file, int offset, int length) {
+        byte[] data = new byte[length];
+
+        Map<Integer, CacheData> cachedFile = cache.get(file);
+        if (cachedFile != null) {
+            CacheData cachedData = cachedFile.get(offset);
+            if (cachedData != null)
+                return cachedData.data;
+        }
         threadsWaiting++;
-        boolean success = doAction(ACTION_READ, file, startOfData, data);
+        boolean success = doAction(ACTION_READ, file, offset, data);
         if (success)
             return data;
         return null;
@@ -56,20 +36,39 @@ public class ActionThread implements Runnable {
         if (data == null || data.length == 0)
             return;
         // TODO merge strings not more 512 byte in mainThread and max in achieveTread
-        writeActionsBuffer.add(new WriteActionsBuffer(file, (int) offset, data));
+
+        Map<Integer, CacheData> cachedFile = cache.get(file);
+        if (cachedFile == null) {
+            cachedFile = new HashMap<>();
+            cache.put(file, cachedFile);
+        }
+
+        CacheData cachedData = cachedFile.get(offset);
+        if (cachedData == null) {
+            cachedData = new CacheData(true, file, (int) offset, data);
+            cachedFile.put((int) offset, cachedData);
+        } else {
+            cachedData.data = data;
+            cachedData.isUpdated = true;
+            writeSequences.remove(cachedData);
+        }
+        writeSequences.add(cachedData);
+
         synchronized (syncWriteLoopObject) {
-            //syncWriteLoopObject.notify();
+            syncWriteLoopObject.notify();
         }
     }
 
     @Override
     public void run() {
         while (true) {
-            if (threadsWaiting == 0 && writeActionsBuffer.size() > 0) {
-                WriteActionsBuffer action = writeActionsBuffer.get(0);
+            if (threadsWaiting == 0 && writeSequences.size() > 0) {
+                CacheData action = writeSequences.get(0);
                 boolean success = doAction(ACTION_WRITE, action.file, action.offset, action.data);
-                if (success)
-                    writeActionsBuffer.remove(action);
+                if (success) {
+                    action.isUpdated = false;
+                    writeSequences.remove(action);
+                }
             } else {
                 synchronized (syncWriteLoopObject) {
                     try {
@@ -109,14 +108,13 @@ public class ActionThread implements Runnable {
     }
 
     public void flush(RandomAccessFile file) {
-
-        for (Iterator<WriteActionsBuffer> it = writeActionsBuffer.iterator(); it.hasNext(); ) {
-            WriteActionsBuffer actionsBuffer = it.next();
+        for (Iterator<CacheData> it = writeSequences.iterator(); it.hasNext(); ) {
+            CacheData actionsBuffer = it.next();
             if (actionsBuffer.file == file) {
                 doAction(ACTION_WRITE, actionsBuffer.file, actionsBuffer.offset, actionsBuffer.data);
+                actionsBuffer.isUpdated = false;
                 it.remove();
             }
-
         }
     }
 }
