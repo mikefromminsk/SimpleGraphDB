@@ -46,10 +46,12 @@ public class InfinityConstArrayTest {
     @Test
     public void add() {
         InfinityConstArray testConstArray = new InfinityConstArray("constArrayTest", new TestCell());
-        long index = testConstArray.add(new TestCell(258, 789));
-        testConstArray.add(new TestCell(345, 674));
+        long index1 = testConstArray.add(new TestCell(258, 789));
+        long index2 = testConstArray.add(new TestCell(345, 674));
         TestCell destination = new TestCell();
-        testConstArray.get(index, destination);
+        testConstArray.get(index1, destination);
         assertEquals(258, destination.field1);
+        testConstArray.get(index2, destination);
+        assertEquals(674, destination.field2);
     }
 }
