@@ -14,7 +14,7 @@ public class InfinityConstArray extends InfinityFile {
         dest.setData(readiedData);
     }
 
-    public void set(int index, InfinityConstArrayCell obj) {
+    public void set(long index, InfinityConstArrayCell obj) {
         write(index * cell.getSize(), obj.getBytes());
     }
 
