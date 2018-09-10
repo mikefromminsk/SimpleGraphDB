@@ -7,18 +7,19 @@ public class InfinityArray extends InfinityFile {
     // TODO garbage collector
 
     private InfinityConstArray meta;
-    private Map<Long, InfinityConstArray> garbageCollector = new HashMap<>();
+    public Map<Long, InfinityConstArray> garbageCollector = new HashMap<>();
 
 
     public InfinityArray(String infinityFileID) {
         super(infinityFileID);
-        meta = new InfinityConstArray(infinityFileID + ".meta", new MetaNode());
+        meta = new InfinityConstArray(infinityFileID + ".meta");
         Map<String, String> garbage = DiskManager.getInstance().properties.getSection(infinityFileID + ".garbage");
-        for (String key : garbage.keySet()) {
-            Long sectorSize = Long.valueOf(key);
-            InfinityConstArray garbageBySize = new InfinityConstArray(garbage.get(key), new MetaNode());
-            garbageCollector.put(sectorSize, garbageBySize);
-        }
+        if (garbage != null)
+            for (String key : garbage.keySet()) {
+                Long sectorSize = Long.valueOf(key);
+                InfinityConstArray garbageBySize = new InfinityConstArray(garbage.get(key));
+                garbageCollector.put(sectorSize, garbageBySize);
+            }
     }
 
     public byte[] get(long index) {
@@ -54,45 +55,36 @@ public class InfinityArray extends InfinityFile {
         }
     }
 
-    private void addToGarbage(long index, long sectorSize) {
-        InfinityConstArray garbageBySize = garbageCollector.get(index);
+    public void addToGarbage(long index, long sectorSize) {
+        InfinityConstArray garbageBySize = garbageCollector.get(sectorSize);
         LongCell longCell = new LongCell();
         if (garbageBySize == null) {
             String newGarbageFileID = infinityFileID + ".garbage" + sectorSize;
             DiskManager.getInstance().properties.put(infinityFileID + ".garbage", "" + sectorSize, newGarbageFileID);
-            garbageBySize = new InfinityConstArray(newGarbageFileID, longCell);
-            longCell.setData(0);
-            garbageBySize.add(longCell);
-            longCell.setData(index);
-            garbageBySize.add(longCell);
+            garbageBySize = new InfinityConstArray(newGarbageFileID);
+            garbageBySize.add(0);
+            garbageBySize.add(index);
             garbageCollector.put(sectorSize, garbageBySize);
         } else {
-            garbageBySize.get(0, longCell);
-            long contentLength = longCell.value;
-            if (contentLength < garbageBySize.fileData.sumFilesSize){
-                longCell.setData(index);
-                long newIndex = contentLength / longCell.getSize();
-                garbageBySize.set(newIndex, longCell);
-            }else{
-                longCell.setData(index);
-                garbageBySize.add(longCell);
+            long contentLength = garbageBySize.getLong(0);
+            if (contentLength < garbageBySize.fileData.sumFilesSize) {
+                garbageBySize.set(contentLength / longCell.getSize(), index);
+            } else {
+                garbageBySize.add(index);
             }
-            longCell.setData(contentLength + longCell.getSize());
-            garbageBySize.set(0, longCell);
+            garbageBySize.set(0, contentLength + longCell.getSize());
         }
     }
 
-    private MetaNode getGarbage(int index) {
+    public MetaNode getGarbage(int index) {
         InfinityConstArray garbageBySize = garbageCollector.get(index);
         LongCell longCell = new LongCell();
         if (garbageBySize != null) {
-            garbageBySize.get(0, longCell);
-            long lastGarbage = longCell.value - longCell.getSize();
-            garbageBySize.get(lastGarbage, longCell);
             MetaNode metaNode = new MetaNode();
-            meta.get(longCell.value, metaNode);
-            longCell.setData(lastGarbage);
-            garbageBySize.set(0, longCell);
+            long lastGarbage = garbageBySize.getLong(0) - longCell.getSize();
+            long metaIndex = garbageBySize.getLong(lastGarbage);
+            meta.get(metaIndex, metaNode);
+            garbageBySize.set(0, lastGarbage);
             return metaNode;
         }
         return null;
@@ -118,4 +110,10 @@ public class InfinityArray extends InfinityFile {
         return result;
     }
 
+    public void flush(){
+        super.flush();
+        meta.flush();
+        for (InfinityConstArray garbage: garbageCollector.values())
+            garbage.flush();
+    }
 }
