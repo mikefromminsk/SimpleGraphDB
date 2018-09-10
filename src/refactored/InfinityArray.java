@@ -57,34 +57,32 @@ public class InfinityArray extends InfinityFile {
 
     public void addToGarbage(long index, long sectorSize) {
         InfinityConstArray garbageBySize = garbageCollector.get(sectorSize);
-        LongCell longCell = new LongCell();
         if (garbageBySize == null) {
             String newGarbageFileID = infinityFileID + ".garbage" + sectorSize;
             DiskManager.getInstance().properties.put(infinityFileID + ".garbage", "" + sectorSize, newGarbageFileID);
             garbageBySize = new InfinityConstArray(newGarbageFileID);
-            garbageBySize.add(0);
+            garbageBySize.add(1);
             garbageBySize.add(index);
             garbageCollector.put(sectorSize, garbageBySize);
         } else {
-            long contentLength = garbageBySize.getLong(0);
-            if (contentLength < garbageBySize.fileData.sumFilesSize) {
-                garbageBySize.set(contentLength / longCell.getSize(), index);
+            long lastContentIndex = garbageBySize.getLong(0);
+            if (lastContentIndex < garbageBySize.fileData.sumFilesSize / Long.BYTES) {
+                garbageBySize.set(lastContentIndex + 1, index);
             } else {
                 garbageBySize.add(index);
             }
-            garbageBySize.set(0, contentLength + longCell.getSize());
+            garbageBySize.set(0, lastContentIndex + 1);
         }
     }
 
-    public MetaNode getGarbage(int index) {
-        InfinityConstArray garbageBySize = garbageCollector.get(index);
-        LongCell longCell = new LongCell();
+    public MetaNode getGarbage(long sectorSize) {
+        InfinityConstArray garbageBySize = garbageCollector.get(sectorSize);
         if (garbageBySize != null) {
             MetaNode metaNode = new MetaNode();
-            long lastGarbage = garbageBySize.getLong(0) - longCell.getSize();
-            long metaIndex = garbageBySize.getLong(lastGarbage);
+            long lastGarbageIndex = garbageBySize.getLong(0);
+            long metaIndex = garbageBySize.getLong(lastGarbageIndex);
             meta.get(metaIndex, metaNode);
-            garbageBySize.set(0, lastGarbage);
+            garbageBySize.set(0, lastGarbageIndex - 1);
             return metaNode;
         }
         return null;
