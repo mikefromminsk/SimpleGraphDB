@@ -20,6 +20,6 @@ public class InfinityConstArray extends InfinityFile {
 
     public long add(InfinityConstArrayCell obj) {
         long lastMaxPosition = super.add(obj.getBytes());
-        return  lastMaxPosition / cell.getSize();
+        return  lastMaxPosition / obj.getSize();
     }
 }

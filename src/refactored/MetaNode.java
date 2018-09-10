@@ -22,6 +22,6 @@ public class MetaNode implements InfinityConstArrayCell {
 
     @Override
     public int getSize() {
-        return Long.SIZE * 2;
+        return Long.BYTES * 2;
     }
 }

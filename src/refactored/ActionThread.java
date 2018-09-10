@@ -22,8 +22,10 @@ public class ActionThread implements Runnable {
         Map<Integer, CacheData> cachedFile = cache.get(file);
         if (cachedFile != null) {
             CacheData cachedData = cachedFile.get(offset);
-            if (cachedData != null)
-                return cachedData.data;
+            if (cachedData != null){
+                System.arraycopy(cachedData.data, 0, data, 0, length);
+                return data;
+            }
         }
         threadsWaiting++;
         boolean success = doAction(ACTION_READ, file, offset, data);

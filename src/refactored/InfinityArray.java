@@ -10,13 +10,14 @@ public class InfinityArray extends InfinityFile {
         meta = new InfinityConstArray(infinityFileID + ".meta", new MetaNode());
     }
 
-    public byte[] get(int index) {
+    public byte[] get(long index) {
         MetaNode metaNode = new MetaNode();
         meta.get(index, metaNode);
-        return read(metaNode.start, metaNode.length);
+        byte[] data = read(metaNode.start, metaNode.length);
+        return data;
     }
 
-    public void set(int index, byte[] data) {
+    public void set(long index, byte[] data) {
         MetaNode metaNode = new MetaNode();
         meta.get(index, metaNode);
         int lastSectorLength = getSectorLength((int) metaNode.length);
@@ -32,7 +33,7 @@ public class InfinityArray extends InfinityFile {
 
     public long add(byte[] data) {
         MetaNode metaNode = new MetaNode();
-        metaNode.start = add(dataToSector(data));
+        metaNode.start = super.add(dataToSector(data));
         metaNode.length = data.length;
         return meta.add(metaNode);
     }

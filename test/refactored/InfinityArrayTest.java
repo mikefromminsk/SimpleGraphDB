@@ -10,7 +10,10 @@ public class InfinityArrayTest {
     public void add() {
         InfinityArray testArray = new InfinityArray("testArray");
         byte[] testData = "tests".getBytes();
-        testArray.add(testData);
-        assertEquals();
+        long index = testArray.add(testData);
+        testData[0] = 'b';
+        testArray.set(index, testData);
+        byte[] results = testArray.get(index);
+        assertEquals("bests", new String(results));
     }
 }
