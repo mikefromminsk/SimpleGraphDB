@@ -24,7 +24,9 @@ public class InfinityArray extends InfinityFile {
         if (newSectorLength > lastSectorLength) {
             // TODO get from gc
         } else {
-
+            byte[] result = new byte[lastSectorLength];
+            System.arraycopy(data, 0, result, 0, data.length);
+            write(metaNode.start, result);
         }
     }
 
