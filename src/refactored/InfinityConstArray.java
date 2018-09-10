@@ -2,22 +2,24 @@ package refactored;
 
 public class InfinityConstArray extends InfinityFile {
 
-    private final long cellSize;
+    private InfinityConstArrayCell cell;
 
-    public InfinityConstArray(String infinityFileID, long cellSize) {
+    public InfinityConstArray(String infinityFileID, InfinityConstArrayCell cell) {
         super(infinityFileID);
-        this.cellSize = cellSize;
+        this.cell = cell;
     }
 
-    public byte[] get(long index) {
-        return read(index * cellSize, cellSize);
+    public void get(long index, InfinityConstArrayCell dest) {
+        byte[] readiedData = read(index * cell.getSize(), cell.getSize());
+        dest.setData(readiedData);
     }
 
-    public void set(int index, byte[] obj) {
-        write(index * cellSize, obj);
+    public void set(int index, InfinityConstArrayCell obj) {
+        write(index * cell.getSize(), obj.getBytes());
     }
 
-    public long add(byte[] obj) {
-        return super.add(obj) / cellSize;
+    public long add(InfinityConstArrayCell obj) {
+        long lastMaxPostion = super.add(obj.getBytes());
+        return  lastMaxPostion / cell.getSize();
     }
 }

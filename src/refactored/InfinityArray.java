@@ -1,7 +1,7 @@
 package refactored;
 
-public class InfinityArray extends InfinityFile {
-
+public class InfinityArray {
+/*
     InfinityConstArray meta;
     public final static int META_SIZE = Long.SIZE * 2;
     // TODO garbage collector
@@ -32,6 +32,6 @@ public class InfinityArray extends InfinityFile {
         long metaIndex = meta.add(Bytes.fromLongArray(newMetaData));
         super.add(data);
         return metaIndex;
-    }
+    }*/
 
 }

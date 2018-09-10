@@ -4,7 +4,7 @@ import refactored.Bytes;
 import refactored.InfinityArray;
 import refactored.InfinityConstArray;
 
-public class HashTree extends InfinityConstArray {
+public class HashTree {
 
     InfinityArray hashKeys;
     InfinityArray hashes;
@@ -14,7 +14,7 @@ public class HashTree extends InfinityConstArray {
     public final static long HALF_LONG = Long.MAX_VALUE / 2L;
 
     TreeNode root;
-
+/*
     HashTree(String infinityFileID) {
         super(infinityFileID, TreeNode.SIZE);
         hashKeys = new InfinityArray(infinityFileID + ".keys");
@@ -56,5 +56,5 @@ public class HashTree extends InfinityConstArray {
 
     long get(String str) {
         return 0;
-    }
+    }*/
 }

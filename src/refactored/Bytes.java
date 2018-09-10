@@ -35,8 +35,10 @@ public class Bytes {
     }
 
     public static int[] toIntArray(byte[] bytes) {
-        IntBuffer intBuf = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).asIntBuffer();
-        return new int[intBuf.remaining()];
+        IntBuffer intBuffer = ByteBuffer.wrap(bytes).asIntBuffer();
+        int result[] = new int[intBuffer.capacity()];
+        intBuffer.get(result);
+        return result;
     }
 
     public static byte[] fromIntArray(int[] value) {
@@ -47,14 +49,16 @@ public class Bytes {
     }
 
     public static long[] toLongArray(byte[] bytes) {
-        LongBuffer intBuf = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN).asLongBuffer();
-        return new long[intBuf.remaining()];
+        LongBuffer longBuffer = ByteBuffer.wrap(bytes).asLongBuffer();
+        long result[] = new long[longBuffer.capacity()];
+        longBuffer.get(result);
+        return result;
     }
 
-    public static byte[] fromLongArray(long[] value) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(value.length * 8);
+    public static byte[] fromLongArray(long[] arr) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(arr.length * Long.BYTES);
         LongBuffer longBuffer = byteBuffer.asLongBuffer();
-        longBuffer.put(value);
+        longBuffer.put(arr);
         return byteBuffer.array();
     }
 

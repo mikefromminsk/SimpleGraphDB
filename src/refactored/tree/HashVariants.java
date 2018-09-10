@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class HashVariants {
-
     byte[] mask;
     ArrayList<Hash> hashs;
 

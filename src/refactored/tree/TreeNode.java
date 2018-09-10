@@ -2,26 +2,29 @@ package refactored.tree;
 
 import refactored.Bytes;
 import refactored.InfinityConstArray;
+import refactored.InfinityConstArrayCell;
 
 import java.util.Arrays;
 
-public class TreeNode {
+public class TreeNode implements InfinityConstArrayCell {
+
     public final static int SIZE = HashTree.MASK_SIZE + HashTree.LINKS_SIZE;
     byte[] mask;
     long[] links;
 
     public TreeNode(byte[] data) {
-        set(data);
-    }
-
-    public void set(byte[] data) {
-        this.mask = Arrays.copyOfRange(data, 0, HashTree.MASK_SIZE - 1);
-        this.links = Bytes.toLongArray(Arrays.copyOfRange(data, HashTree.MASK_SIZE, TreeNode.SIZE - 1));
+        setData(data);
     }
 
     public TreeNode(byte[] mask, long[] links) {
         this.mask = mask;
         this.links = links;
+    }
+
+    @Override
+    public void setData(byte[] data) {
+        this.mask = Arrays.copyOfRange(data, 0, HashTree.MASK_SIZE - 1);
+        this.links = Bytes.toLongArray(Arrays.copyOfRange(data, HashTree.MASK_SIZE, TreeNode.SIZE - 1));
     }
 
     public byte[] getBytes() {
@@ -31,9 +34,14 @@ public class TreeNode {
         return data;
     }
 
+    @Override
+    public int getSize() {
+        return SIZE;
+    }
+
     public void setLink(InfinityConstArray file, long nodeIndex, int linkIndex, long linkValue) {
         links[linkIndex] = linkValue;
-        long start = nodeIndex * SIZE + HashTree.MASK_SIZE +  linkIndex * Long.BYTES;
+        long start = nodeIndex * SIZE + HashTree.MASK_SIZE + linkIndex * Long.BYTES;
         file.write(start, Bytes.fromLong(linkValue));
     }
 
