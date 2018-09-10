@@ -58,12 +58,13 @@ public class InfinityArray extends InfinityFile {
     public void addToGarbage(long index, long sectorSize) {
         InfinityConstArray garbageBySize = garbageCollector.get(sectorSize);
         if (garbageBySize == null) {
-            String newGarbageFileID = infinityFileID + ".garbage" + sectorSize;
-            DiskManager.getInstance().properties.put(infinityFileID + ".garbage", "" + sectorSize, newGarbageFileID);
-            garbageBySize = new InfinityConstArray(newGarbageFileID);
+            String garbageName = infinityFileID + ".garbage";
+            String garbageNameWithSize = garbageName + sectorSize;
+            garbageBySize = new InfinityConstArray(garbageNameWithSize);
             garbageBySize.add(1);
             garbageBySize.add(index);
             garbageCollector.put(sectorSize, garbageBySize);
+            DiskManager.getInstance().properties.put(garbageName, "" + sectorSize, garbageNameWithSize);
         } else {
             long lastContentIndex = garbageBySize.getLong(0);
             if (lastContentIndex < garbageBySize.fileData.sumFilesSize / Long.BYTES) {
