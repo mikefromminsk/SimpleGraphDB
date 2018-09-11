@@ -11,22 +11,25 @@ public class ActionThread implements Runnable {
     private int threadsWaiting = 0;
     private final Object syncWriteLoopObject = 1;
     private Map<RandomAccessFile, Map<Integer, CacheData>> cache = new HashMap<>();
-    private ArrayList<CacheData> writeSequences = new ArrayList<>();
-    private long maxCacheSize;
-    private long cacheSize = 0;
+    private List<CacheData> writeSequences = new ArrayList<>();
+    public long maxCacheSize;
+    public long cacheSize = 0;
     private PriorityQueue<CacheData> cachePriority = new PriorityQueue<>(Comparator.comparingLong(s -> s.saveTime));
 
     public ActionThread(long maxCacheSize) {
         this.maxCacheSize = maxCacheSize;
     }
 
-    private void addToCache(Map<Integer, CacheData> cachedFile, CacheData newCache) {
+    public void addToCache(Map<Integer, CacheData> cachedFile, CacheData newCache) {
         while (cacheSize != 0 && cacheSize + newCache.data.length > maxCacheSize) {
             CacheData writeCache = cachePriority.poll();
-            if (writeCache.isUpdated){
-                doAction(ACTION_WRITE, writeCache.file, writeCache.offset, writeCache.data);
-                cachedFile.remove(writeCache.offset, writeCache);
-                writeSequences.remove(writeCache);
+            // TODO why poll can return null
+            if (writeCache != null) {
+                if (writeCache.isUpdated) {
+                    doAction(ACTION_WRITE, writeCache.file, writeCache.offset, writeCache.data);
+                    cachedFile.remove(writeCache.offset, writeCache);
+                    writeSequences.remove(writeCache);
+                }
                 cacheSize -= writeCache.data.length;
             }
         }
@@ -44,7 +47,7 @@ public class ActionThread implements Runnable {
             CacheData cachedData = cachedFile.get(offset);
             if (cachedData != null) {
                 int now = (int) (System.currentTimeMillis() / 1000L);
-                if (now != cachedData.lastTime){
+                if (now != cachedData.lastTime) {
                     cachedData.lastTime = now;
                     cachedData.readCount += 1;
                     cachedData.saveTime = cachedData.lastTime + cachedData.readCount;
@@ -87,6 +90,10 @@ public class ActionThread implements Runnable {
             cachedData.isUpdated = true;
             writeSequences.remove(cachedData);
         }
+        if (cachedData == null) {
+            int i = 0;
+            i++;
+        }
         writeSequences.add(cachedData);
 
         synchronized (syncWriteLoopObject) {
@@ -99,10 +106,13 @@ public class ActionThread implements Runnable {
         while (true) {
             if (threadsWaiting == 0 && writeSequences.size() > 0) {
                 CacheData action = writeSequences.get(0);
-                boolean success = doAction(ACTION_WRITE, action.file, action.offset, action.data);
-                if (success) {
-                    action.isUpdated = false;
-                    writeSequences.remove(action);
+                // TODO find why action cab be null
+                if (action != null) {
+                    boolean success = doAction(ACTION_WRITE, action.file, action.offset, action.data);
+                    if (success) {
+                        action.isUpdated = false;
+                        writeSequences.remove(0);
+                    }
                 }
             } else {
                 synchronized (syncWriteLoopObject) {

@@ -9,7 +9,6 @@ import java.util.Map;
 
 public class InfinityFile {
     // TODO add secure
-    // TODO add cache
 
     public final static int MAX_STORAGE_DATA_IN_DB = 2048;
     public final static String INFINITY_FILE_PART_PREFIX = "part";

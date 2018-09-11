@@ -13,6 +13,7 @@ public class DiskManager {
     public final static File dbDir = new File("SimpleGraphDB");
     public final static File propertiesFile = new File(dbDir, "settings.properties");
     public Integer partSize;
+    public Integer cacheSize;
 
     public static DiskManager getInstance() {
         if (instance == null) {
@@ -25,8 +26,11 @@ public class DiskManager {
         return instance;
     }
 
-    public final static String DISK_MANAGER_SECTION = "_manager_";
-    public final static String DISK_MANAGER_PART_SIZE_KEY = "part_size";
+    public final static String SECTION = "_manager_";
+    public final static String PART_SIZE_KEY = "part_size";
+    public final static Integer PART_SIZE_DEFAULT = 4096;
+    public final static String CACHE_SIZE_KEY = "cache_size";
+    public final static Integer CACHE_SIZE_DEFAULT = 4096;
 
     private DiskManager() throws FileNotFoundException {
         // TODO double save settings
@@ -37,11 +41,11 @@ public class DiskManager {
                 throw new FileNotFoundException();
         try {
             properties = new IniFile(propertiesFile);
-            if (properties.getSection(DISK_MANAGER_SECTION) == null)
+            if (properties.getSection(SECTION) == null)
                 initProperties(properties);
             loadProperties(properties);
 
-            mainThread = new ActionThread();
+            mainThread = new ActionThread(cacheSize);
             Thread thread = new Thread(mainThread);
             thread.start();
 
@@ -51,11 +55,13 @@ public class DiskManager {
     }
 
     private void loadProperties(IniFile properties) {
-        this.partSize = properties.getInt(DISK_MANAGER_SECTION, DISK_MANAGER_PART_SIZE_KEY, 4096);
+        this.partSize = properties.getInt(SECTION, PART_SIZE_KEY, PART_SIZE_DEFAULT);
+        this.cacheSize = properties.getInt(SECTION, CACHE_SIZE_KEY, CACHE_SIZE_DEFAULT);
     }
 
     private void initProperties(IniFile properties) {
-        properties.put(DISK_MANAGER_SECTION, DISK_MANAGER_PART_SIZE_KEY, "4096");
+        properties.put(SECTION, PART_SIZE_KEY, "" + PART_SIZE_DEFAULT);
+        properties.put(SECTION, CACHE_SIZE_KEY, "" + CACHE_SIZE_DEFAULT);
     }
 
     public void addDisk(String rootDir) {
