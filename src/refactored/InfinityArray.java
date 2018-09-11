@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InfinityArray extends InfinityFile {
-    // TODO garbage collector
 
     private InfinityConstArray meta;
     public Map<Long, InfinityConstArray> garbageCollector = new HashMap<>();
