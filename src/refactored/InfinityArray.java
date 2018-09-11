@@ -88,10 +88,12 @@ public class InfinityArray extends InfinityFile {
         if (garbageBySize != null) {
             MetaNode metaNode = new MetaNode();
             long lastGarbageIndex = garbageBySize.getLong(0);
-            long metaIndex = garbageBySize.getLong(lastGarbageIndex);
-            meta.get(metaIndex, metaNode);
-            garbageBySize.set(0, lastGarbageIndex - 1);
-            return metaNode;
+            if (lastGarbageIndex > 1) {
+                long metaIndex = garbageBySize.getLong(lastGarbageIndex);
+                meta.get(metaIndex, metaNode);
+                garbageBySize.set(0, lastGarbageIndex - 1);
+                return metaNode;
+            }
         }
         return null;
     }
