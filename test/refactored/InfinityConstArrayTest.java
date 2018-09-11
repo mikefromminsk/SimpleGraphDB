@@ -45,7 +45,7 @@ public class InfinityConstArrayTest {
 
     @Test
     public void add() {
-        InfinityConstArray testConstArray = new InfinityConstArray("constArrayTest", new TestCell());
+        InfinityConstArray testConstArray = new InfinityConstArray("constArrayTest");
         long index1 = testConstArray.add(new TestCell(258, 789));
         long index2 = testConstArray.add(new TestCell(345, 674));
         TestCell destination = new TestCell();

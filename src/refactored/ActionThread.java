@@ -108,15 +108,4 @@ public class ActionThread implements Runnable {
             }
         }
     }
-
-    public void flush(RandomAccessFile file) {
-        for (Iterator<CacheData> it = writeSequences.iterator(); it.hasNext(); ) {
-            CacheData actionsBuffer = it.next();
-            if (actionsBuffer.file == file) {
-                doAction(ACTION_WRITE, actionsBuffer.file, actionsBuffer.offset, actionsBuffer.data);
-                actionsBuffer.isUpdated = false;
-                it.remove();
-            }
-        }
-    }
 }

@@ -25,8 +25,11 @@ public class InfinityArray extends InfinityFile {
     public byte[] get(long index) {
         MetaNode metaNode = new MetaNode();
         meta.get(index, metaNode);
-        byte[] data = read(metaNode.start, metaNode.length);
-        return data;
+        return read(metaNode.start, metaNode.length);
+    }
+
+    public String getString(long index) {
+        return new String(get(index));
     }
 
     public void set(long index, byte[] data) {
@@ -53,6 +56,10 @@ public class InfinityArray extends InfinityFile {
             System.arraycopy(data, 0, result, 0, data.length);
             write(metaNode.start, result);
         }
+    }
+
+    public void set(long index, String data) {
+        set(index, data.getBytes());
     }
 
     public void addToGarbage(long index, long sectorSize) {
@@ -91,9 +98,14 @@ public class InfinityArray extends InfinityFile {
 
     public long add(byte[] data) {
         MetaNode metaNode = new MetaNode();
-        metaNode.start = super.add(dataToSector(data));
+        byte[] sector = dataToSector(data);
+        metaNode.start = super.add(sector);
         metaNode.length = data.length;
         return meta.add(metaNode);
+    }
+
+    public long add(String data) {
+        return add(data.getBytes());
     }
 
     int getSectorLength(int dataLength) {
@@ -107,12 +119,5 @@ public class InfinityArray extends InfinityFile {
         byte[] result = new byte[getSectorLength(data.length)];
         System.arraycopy(data, 0, result, 0, data.length);
         return result;
-    }
-
-    public void flush(){
-        super.flush();
-        meta.flush();
-        for (InfinityConstArray garbage: garbageCollector.values())
-            garbage.flush();
     }
 }
