@@ -3,8 +3,9 @@ package refactored;
 import java.io.RandomAccessFile;
 
 public class CacheData {
+    byte readCount = 1;
     int lastTime = (int) (System.currentTimeMillis() / 1000L);
-    int saveTime = lastTime + 2;
+    int saveTime = lastTime + readCount;
     boolean isUpdated;
     RandomAccessFile file;
     int offset;

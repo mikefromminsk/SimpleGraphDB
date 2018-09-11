@@ -46,7 +46,8 @@ public class ActionThread implements Runnable {
                 int now = (int) (System.currentTimeMillis() / 1000L);
                 if (now != cachedData.lastTime){
                     cachedData.lastTime = now;
-                    //cachedData.saveTime += 2;
+                    cachedData.readCount += 1;
+                    cachedData.saveTime = cachedData.lastTime + cachedData.readCount;
                 }
                 System.arraycopy(cachedData.data, 0, data, 0, length);
                 return data;
