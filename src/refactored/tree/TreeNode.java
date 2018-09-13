@@ -30,15 +30,16 @@ public class TreeNode implements InfinityArrayCell {
 
     @Override
     public void setData(byte[] data) {
-        this.mask = Arrays.copyOfRange(data, 0, MASK_SIZE - 1);
-        this.links = Bytes.toLongArray(Arrays.copyOfRange(data, MASK_SIZE, SIZE - 1));
+        this.mask = Arrays.copyOfRange(data, 0, MASK_SIZE);
+        byte[] linksArr = Arrays.copyOfRange(data, MASK_SIZE, LINKS_SIZE);
+        this.links = Bytes.toLongArray(linksArr);
     }
 
     @Override
     public byte[] getBytes() {
-        byte[] data = new byte[MASK_SIZE + links.length * Long.BYTES];
+        byte[] data = new byte[MASK_SIZE + LINKS_SIZE];
         System.arraycopy(mask, 0, data, 0, MASK_SIZE);
-        System.arraycopy(Bytes.fromLongArray(links), 0, data, MASK_SIZE - 1, LINKS_SIZE);
+        System.arraycopy(Bytes.fromLongArray(links), 0, data, MASK_SIZE, LINKS_SIZE);
         return data;
     }
 

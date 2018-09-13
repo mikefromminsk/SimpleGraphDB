@@ -14,7 +14,7 @@ public class InfinityFile {
     public final static String INFINITY_FILE_PART_PREFIX = "part";
     public long partSize;
     String infinityFileID;
-    protected InfinityFileData fileData;
+    public InfinityFileData fileData;
     ActionThread mainThread;
     public static Map<String, InfinityFileData> infinityFileCache = new HashMap<>();
 

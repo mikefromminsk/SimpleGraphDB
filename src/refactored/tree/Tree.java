@@ -4,8 +4,6 @@ import refactored.Bytes;
 import refactored.InfinityArray;
 import refactored.InfinityConstArray;
 
-import java.util.ArrayList;
-
 public class Tree extends InfinityConstArray {
     // TODO delete new and use only 3 objects to search
     // TODO HALF_LONG value change to max tree node count
@@ -19,11 +17,10 @@ public class Tree extends InfinityConstArray {
         keys = new InfinityArray(infinityFileID + ".keys");
         hashes = new InfinityArray(infinityFileID + ".hashes");
         if (fileData.sumFilesSize == 0)
-            add(new TreeNode("****".getBytes(), new long[TreeNode.LINKS_SIZE]));
+            add(new TreeNode("****".getBytes(), new long[TreeNode.LINKS_COUNT]));
     }
 
-    void put(String str, long value) {
-        byte[] hash = CRC16.getHash(str);
+    void put(String str, byte[] hash, long value) {
         TreeNode node = new TreeNode();
         long prevIndex = Long.MAX_VALUE;
         long nodeIndex = 0;
