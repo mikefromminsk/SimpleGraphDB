@@ -6,7 +6,7 @@ public class InfinityConstArray extends InfinityFile {
         super(infinityFileID);
     }
 
-    public void get(long index, InfinityConstArrayCell dest) {
+    public void get(long index, InfinityArrayCell dest) {
         byte[] readiedData = read(index * dest.getSize(), dest.getSize());
         dest.setData(readiedData);
     }
@@ -17,7 +17,7 @@ public class InfinityConstArray extends InfinityFile {
         return longCell.value;
     }
 
-    public void set(long index, InfinityConstArrayCell obj) {
+    public void set(long index, InfinityArrayCell obj) {
         write(index * obj.getSize(), obj.getBytes());
     }
 
@@ -27,7 +27,7 @@ public class InfinityConstArray extends InfinityFile {
         set(index, longCell);
     }
 
-    public long add(InfinityConstArrayCell obj) {
+    public long add(InfinityArrayCell obj) {
         long lastMaxPosition = super.add(obj.getBytes());
         return  lastMaxPosition / obj.getSize();
     }

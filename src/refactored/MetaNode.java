@@ -1,6 +1,6 @@
 package refactored;
 
-public class MetaNode implements InfinityConstArrayCell {
+public class MetaNode implements InfinityArrayCell {
 
     public long start;
     public long length;
@@ -22,6 +22,6 @@ public class MetaNode implements InfinityConstArrayCell {
 
     @Override
     public int getSize() {
-        return Long.BYTES * 2;
+        return 2 * Long.BYTES;
     }
 }

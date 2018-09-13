@@ -1,6 +1,6 @@
 package refactored;
 
-public interface InfinityConstArrayCell {
+public interface InfinityArrayCell {
     void setData(byte[] data);
 
     byte[] getBytes();

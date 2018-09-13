@@ -1,6 +1,6 @@
 package refactored;
 
-public class LongCell implements InfinityConstArrayCell {
+public class LongCell implements InfinityArrayCell {
 
     long value = 0;
 

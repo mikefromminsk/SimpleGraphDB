@@ -1,29 +1,56 @@
 package refactored.tree;
 
 import refactored.Bytes;
+import refactored.InfinityArrayCell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class HashVariants {
-    byte[] mask;
-    ArrayList<Hash> hashs;
+public class HashVariants implements InfinityArrayCell {
+
+    public byte[] mask;
+    public ArrayList<Hash> hashes;
+
+    public HashVariants() {
+    }
 
     public HashVariants(byte[] data) {
-        this.mask = Arrays.copyOfRange(data, 0, HashTree.MASK_SIZE - 1);
-        int hashVariantsCount = (data.length - HashTree.MASK_SIZE) / Hash.SIZE;
+        setData(data);
+    }
+
+    public HashVariants(byte[] mask, ArrayList<Hash> hashes) {
+        this.mask = mask;
+        this.hashes = hashes;
+    }
+
+    public HashVariants(byte[] mask, Hash hash) {
+        this.mask = mask;
+        this.hashes = new ArrayList<Hash>();
+        this.hashes.add(hash);
+    }
+
+    @Override
+    public void setData(byte[] data) {
+        this.mask = Arrays.copyOfRange(data, 0, TreeNode.MASK_SIZE - 1);
+        int hashVariantsCount = (data.length - TreeNode.MASK_SIZE) / Hash.SIZE;
         for (int i = 0; i < hashVariantsCount; i++) {
-            int startHashData = HashTree.MASK_SIZE + i * Hash.SIZE - 1;
+            int startHashData = TreeNode.MASK_SIZE + i * Hash.SIZE - 1;
             long[] hashData = Bytes.toLongArray(Arrays.copyOfRange(data, startHashData, startHashData + Hash.SIZE));
-            hashs.add(new Hash(hashData[0], hashData[1], hashData[2]));
+            hashes.add(new Hash(hashData[0], hashData[1], hashData[2]));
         }
     }
 
-    byte[] toBytes() {
-        byte[] data = new byte[HashTree.MASK_SIZE + hashs.size() * Hash.SIZE];
-        System.arraycopy(mask, 0, data, 0, HashTree.MASK_SIZE);
-        for (int i = 0; i < hashs.size(); i++)
-            System.arraycopy(hashs.get(i).getBytes(), 0, data, HashTree.MASK_SIZE + i * Hash.SIZE - 1, Hash.SIZE);
+    @Override
+    public byte[] getBytes() {
+        byte[] data = new byte[TreeNode.MASK_SIZE + hashes.size() * Hash.SIZE];
+        System.arraycopy(mask, 0, data, 0, TreeNode.MASK_SIZE);
+        for (int i = 0; i < hashes.size(); i++)
+            System.arraycopy(hashes.get(i).getBytes(), 0, data, TreeNode.MASK_SIZE + i * Hash.SIZE - 1, Hash.SIZE);
         return data;
+    }
+
+    @Override
+    public int getSize() {
+        return TreeNode.MASK_SIZE + hashes.size() * Hash.SIZE;
     }
 }

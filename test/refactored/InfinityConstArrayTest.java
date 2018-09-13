@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 
 public class InfinityConstArrayTest {
 
-    class TestCell implements InfinityConstArrayCell {
+    class TestCell implements InfinityArrayCell {
 
         long field1;
         long field2;

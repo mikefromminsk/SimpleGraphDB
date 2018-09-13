@@ -21,19 +21,26 @@ public class InfinityArray extends InfinityFile {
             }
     }
 
-    public byte[] get(long index) {
+    MetaNode getMetaNode(long index) {
         MetaNode metaNode = new MetaNode();
         meta.get(index, metaNode);
-        return read(metaNode.start, metaNode.length);
+        return metaNode;
+    }
+
+    public void get(long index, InfinityArrayCell dest) {
+        MetaNode metaNode = getMetaNode(index);
+        byte[] readiedData = read(metaNode.start, metaNode.length);
+        dest.setData(readiedData);
     }
 
     public String getString(long index) {
-        return new String(get(index));
+        MetaNode metaNode = getMetaNode(index);
+        byte[] readiedData = read(metaNode.start, metaNode.length);
+        return new String(readiedData);
     }
 
     public void set(long index, byte[] data) {
-        MetaNode metaNode = new MetaNode();
-        meta.get(index, metaNode);
+        MetaNode metaNode = getMetaNode(index);
         int lastSectorLength = getSectorLength((int) metaNode.length);
         int newSectorLength = getSectorLength(data.length);
         if (newSectorLength > lastSectorLength) {
@@ -61,6 +68,10 @@ public class InfinityArray extends InfinityFile {
         set(index, data.getBytes());
     }
 
+    public void set(long index, InfinityArrayCell cell) {
+        set(index, cell.getBytes());
+    }
+
     public void addToGarbage(long index, long sectorSize) {
         InfinityConstArray garbageBySize = garbageCollector.get(sectorSize);
         if (garbageBySize == null) {
@@ -85,13 +96,10 @@ public class InfinityArray extends InfinityFile {
     public MetaNode getGarbage(long sectorSize) {
         InfinityConstArray garbageBySize = garbageCollector.get(sectorSize);
         if (garbageBySize != null) {
-            MetaNode metaNode = new MetaNode();
             long lastGarbageIndex = garbageBySize.getLong(0);
             if (lastGarbageIndex > 1) {
-                long metaIndex = garbageBySize.getLong(lastGarbageIndex);
-                meta.get(metaIndex, metaNode);
                 garbageBySize.set(0, lastGarbageIndex - 1);
-                return metaNode;
+                return getMetaNode(garbageBySize.getLong(lastGarbageIndex));
             }
         }
         return null;
@@ -107,6 +115,10 @@ public class InfinityArray extends InfinityFile {
 
     public long add(String data) {
         return add(data.getBytes());
+    }
+
+    public long add(InfinityArrayCell cell) {
+        return add(cell.getBytes());
     }
 
     int getSectorLength(int dataLength) {
