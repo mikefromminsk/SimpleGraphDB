@@ -37,16 +37,18 @@ public class Tree extends InfinityConstArray {
             }
             if (nodeChar == '*') {
                 long link = node.links[hashChar];
-                if (link < HALF_LONG) {
+                if (link < HALF_LONG) {move
                     nodeIndex = link;
                 } else if (link == 0) {
-                    node.links[hashChar] = hashes.add(new HashVariants(hash, newHash(str, value)));
+                    node.links[hashChar] = hashes.add(new HashVariants(hash, newHash(str, value)))+ half;
                     set(nodeIndex, node);
                     return;
                 } else /* hashIndex >= HALF_LONG */ {
                     long hashVariantIndex = link - HALF_LONG;
                     HashVariants hashVariants = new HashVariants();
-                    hashes.get(hashVariantIndex, hashVariants);
+                    hashes.get(hashVariantIndex, hashVariants);compare mask and hash
+                            if hash notequal then create new treenode with mask between newmask and hasmask
+
                     long first8Bytes = Bytes.toLong(str.substring(0, 7).getBytes());
                     boolean findKey = false;
                     for (Hash hashl : hashVariants.hashes)
