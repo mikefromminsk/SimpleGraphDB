@@ -2,11 +2,14 @@ package refactored;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class InfinityArray extends InfinityFile {
 
+    // TODO add secure
+
     private InfinityConstArray meta;
-    public Map<Long, InfinityConstArray> garbageCollector = new HashMap<>();
+    Map<Long, InfinityConstArray> garbageCollector = new HashMap<>();
 
 
     public InfinityArray(String infinityFileID) {
@@ -21,7 +24,7 @@ public class InfinityArray extends InfinityFile {
             }
     }
 
-    MetaNode getMetaNode(long index) {
+    private MetaNode getMetaNode(long index) {
         MetaNode metaNode = new MetaNode();
         meta.get(index, metaNode);
         return metaNode;
@@ -30,6 +33,7 @@ public class InfinityArray extends InfinityFile {
     public void get(long index, InfinityArrayCell dest) {
         MetaNode metaNode = getMetaNode(index);
         byte[] readiedData = read(metaNode.start, metaNode.length);
+        decodeData(readiedData, metaNode.accessKey);
         dest.setData(readiedData);
     }
 
@@ -37,6 +41,27 @@ public class InfinityArray extends InfinityFile {
         MetaNode metaNode = getMetaNode(index);
         byte[] readiedData = read(metaNode.start, metaNode.length);
         return new String(readiedData);
+    }
+
+    private Random randomOfAccessKeys = new Random(System.currentTimeMillis());
+    private Random random = new Random();
+
+    private long encodeData(byte[] data) {
+        long accessKey = randomOfAccessKeys.nextLong();
+        random.setSeed(accessKey);
+        byte[] gamma = new byte[data.length];
+        random.nextBytes(gamma);
+        for (int i = 0; i < data.length; i++)
+            data[i] = (byte) ((data[i] + gamma[i]) % 256);
+        return accessKey;
+    }
+
+    private void decodeData(byte[] data, long accessKey){
+        random.setSeed(accessKey);
+        byte[] gamma = new byte[data.length];
+        random.nextBytes(gamma);
+        for (int i = 0; i < data.length; i++)
+            data[i] = (byte) (Math.abs(data[i] - gamma[i]));
     }
 
     public void set(long index, byte[] data) {
@@ -48,19 +73,24 @@ public class InfinityArray extends InfinityFile {
             addToGarbage(index, lastSectorLength);
             byte[] sectorWithData = new byte[newSectorLength];
             System.arraycopy(data, 0, sectorWithData, 0, data.length);
+            long newAccessKey = encodeData(sectorWithData);
             if (garbage == null) {
                 metaNode.start = super.add(sectorWithData);
                 metaNode.length = data.length;
+                metaNode.accessKey = newAccessKey;
                 meta.set(index, metaNode);
             } else {
                 write(garbage.start, sectorWithData);
                 garbage.length = data.length;
+                garbage.accessKey = newAccessKey;
                 meta.set(index, garbage);
             }
         } else {
-            byte[] result = new byte[lastSectorLength];
-            System.arraycopy(data, 0, result, 0, data.length);
-            write(metaNode.start, result);
+            byte[] sectorWithData = new byte[lastSectorLength];
+            System.arraycopy(data, 0, sectorWithData, 0, data.length);
+            metaNode.accessKey = encodeData(sectorWithData);
+            meta.set(index, metaNode);
+            write(metaNode.start, sectorWithData);
         }
     }
 
@@ -121,7 +151,7 @@ public class InfinityArray extends InfinityFile {
         return add(cell.getBytes());
     }
 
-    int getSectorLength(int dataLength) {
+    private int getSectorLength(int dataLength) {
         int sectorSize = 1;
         while (sectorSize < dataLength)
             sectorSize *= 2;
