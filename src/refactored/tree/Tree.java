@@ -6,11 +6,10 @@ import refactored.InfinityConstArray;
 
 import java.util.Arrays;
 
-public class Tree extends InfinityConstArray {
+class Tree extends InfinityConstArray {
     // TODO delete new and use only 3 objects to search
     // TODO HALF_LONG value change to max tree node count
-    private final static long HALF_LONG = Long.MAX_VALUE / 2L;
-
+    private final static long HALF_LONG = 1000000000000000000L;
     private InfinityArray keys;
     private InfinityArray hashes;
 
@@ -27,20 +26,22 @@ public class Tree extends InfinityConstArray {
         long prevIndex = Long.MAX_VALUE;
         long nodeIndex = 0;
         int i = 0;
-        int maskLength = TreeNode.SIZE;
-        while (i < maskLength) {
+        while (i < TreeNode.SIZE) {
             get(nodeIndex, node);
             byte hashChar = hash[i];
             byte nodeChar = node.mask[i];
-            while (nodeChar == hashChar && i + 1 < maskLength) {
+            while (nodeChar == hashChar && i + 1 < TreeNode.SIZE) {
                 i++;
                 hashChar = hash[i];
                 nodeChar = node.mask[i];
             }
             if (nodeChar == '*') {
+                hashChar -= '0';
                 long link = node.links[hashChar];
                 if (link == 0) {
-                    node.links[hashChar] = hashes.add(new HashVariants(hash, newHash(str, value))) + HALF_LONG;
+                    Hash hash1 = new Hash(getFirst8Bytes(str), keys.add(str), value);
+                    HashVariants hashVariants = new HashVariants(hash, hash1);
+                    node.links[hashChar] = hashes.add(hashVariants) + HALF_LONG;
                     set(nodeIndex, node);
                     return;
                 } else if (link < HALF_LONG) {
@@ -51,7 +52,7 @@ public class Tree extends InfinityConstArray {
                     HashVariants hashVariants = new HashVariants();
                     hashes.get(hashVariantIndex, hashVariants);
                     if (Arrays.equals(hash, hashVariants.mask)) {
-                        long first8Bytes = Bytes.toLong(str.substring(0, 7).getBytes());
+                        long first8Bytes = getFirst8Bytes(str);
                         boolean findKey = false;
                         for (Hash hashl : hashVariants.hashes)
                             if (hashl.first8Bytes == first8Bytes)
@@ -68,25 +69,32 @@ public class Tree extends InfinityConstArray {
                         hashes.set(hashVariantIndex, hashVariants);
                     } else {
                         byte[] newMask = "****".getBytes();
-                        System.arraycopy(hash, 0, newMask, 0, i);
+                        int j = 0;
+                        for (; hash[j] == hashVariants.mask[j]; j++)
+                            newMask[j] = hash[j];
                         long[] links = new long[TreeNode.LINKS_COUNT];
-                        links[hashVariants.mask[i]] = link;
-                        links[hashChar] = hashes.add(new HashVariants(hash, newHash(str, value))) + HALF_LONG;
+                        int previousIndex = hashVariants.mask[j] - '0';
+                        int newIndex = hash[j] - '0';
+                        links[previousIndex] = link;
+                        links[newIndex] = hashes.add(new HashVariants(hash, new Hash(getFirst8Bytes(str), keys.add(str), value))) + HALF_LONG;
                         node.links[hashChar] = add(new TreeNode(newMask, links));
                         set(nodeIndex, node);
                     }
                     return;
                 }
             } else {
+                nodeChar -= '0';
+                hashChar -= '0';
                 byte[] newMask = "****".getBytes();
                 System.arraycopy(node.mask, 0, newMask, 0, i);
                 long[] links = new long[TreeNode.LINKS_COUNT];
                 links[nodeChar] = nodeIndex;
-                links[hashChar] = hashes.add(new HashVariants(hash, newHash(str, value))) + HALF_LONG;
+                links[hashChar] = hashes.add(new HashVariants(hash, new Hash(getFirst8Bytes(str), keys.add(str), value))) + HALF_LONG;
                 long newIndex = add(new TreeNode(newMask, links));
                 if (prevIndex != Long.MAX_VALUE) {
                     get(prevIndex, node);
-                    node.links[i - 1] = newIndex;
+                    int previousPositionInHash = hash[i - 1] - '0';
+                    node.links[previousPositionInHash] = newIndex;
                     set(prevIndex, node);
                 }
                 return;
@@ -94,10 +102,51 @@ public class Tree extends InfinityConstArray {
         }
     }
 
-    Hash newHash(String key, long value) {
-        long first8Bytes = Bytes.toLong(key.substring(0, 7).getBytes());
-        long keyIndex = keys.add(key);
-        return new Hash(first8Bytes, keyIndex, value);
+    long get(String str, byte[] hash) {
+        TreeNode node = new TreeNode();
+        long nodeIndex = 0;
+        int i = 0;
+        while (i < TreeNode.SIZE) {
+            get(nodeIndex, node);
+            byte hashChar = hash[i];
+            byte nodeChar = node.mask[i];
+            while (nodeChar == hashChar && i + 1 < TreeNode.SIZE) {
+                i++;
+                hashChar = hash[i];
+                nodeChar = node.mask[i];
+            }
+            if (nodeChar == '*') {
+                hashChar -= '0';
+                long link = node.links[hashChar];
+                if (link == 0) {
+                    return Long.MAX_VALUE;
+                } else if (link < HALF_LONG) {
+                    nodeIndex = link;
+                } else /* hashIndex >= HALF_LONG */ {
+                    long hashVariantIndex = link - HALF_LONG;
+                    HashVariants hashVariants = new HashVariants();
+                    hashes.get(hashVariantIndex, hashVariants);
+                    if (Arrays.equals(hash, hashVariants.mask)) {
+                        long first8Bytes = getFirst8Bytes(str);
+                        for (Hash hashl : hashVariants.hashes)
+                            if (hashl.first8Bytes == first8Bytes)
+                                if (str.equals(keys.getString(hashl.keyIndex)))
+                                    return hashl.value;
+                    }
+                    return Long.MAX_VALUE;
+                }
+            } else {
+                return Long.MAX_VALUE;
+            }
+        }
+        return Long.MAX_VALUE;
+    }
+
+    private long getFirst8Bytes(String key){
+        String firstChars = key.substring(0, Math.min(7, key.length() - 1));
+        byte[] firstly8Bytes = new byte[Long.BYTES];
+        System.arraycopy(firstChars.getBytes(), 0, firstly8Bytes, 0, firstChars.length());
+        return Bytes.toLong(firstly8Bytes);
     }
 
 }

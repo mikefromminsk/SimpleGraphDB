@@ -105,7 +105,8 @@ public class InfinityFile {
         RandomAccessFile firstWriteFile = getFile(startFileIndex);
         RandomAccessFile secondWriteFile = getFile(endFileIndex);
 
-        fileData.sumFilesSize += data.length;
+        if (start == fileData.sumFilesSize)
+            fileData.sumFilesSize += data.length;
 
         if (startFileIndex == endFileIndex) {
             int startInFile = (int) (start - startFileIndex * partSize);
