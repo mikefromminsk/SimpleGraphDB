@@ -7,6 +7,16 @@ import static org.junit.Assert.*;
 public class InfinityArrayTest {
 
     @Test
+    public void testEncodingDecoding() {
+        String startData = "start data";
+        byte[] data = startData.getBytes();
+        long accessKey = InfinityArray.encodeData(data);
+        assertNotEquals(startData, new String(data));
+        InfinityArray.decodeData(data, accessKey);
+        assertEquals(startData, new String(data));
+    }
+
+    @Test
     public void add() {
         InfinityArray testArray = new InfinityArray("testArray");
         long index = testArray.add("tests");

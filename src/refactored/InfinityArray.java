@@ -37,16 +37,16 @@ public class InfinityArray extends InfinityFile {
         dest.setData(readiedData);
     }
 
+    private StringCell stringCell = new StringCell();
     public String getString(long index) {
-        MetaNode metaNode = getMetaNode(index);
-        byte[] readiedData = read(metaNode.start, metaNode.length);
-        return new String(readiedData);
+        get(index, stringCell);
+        return stringCell.str;
     }
 
-    private Random randomOfAccessKeys = new Random(System.currentTimeMillis());
-    private Random random = new Random();
+    private static Random randomOfAccessKeys = new Random(System.currentTimeMillis());
+    private static Random random = new Random();
 
-    private long encodeData(byte[] data) {
+    public static long encodeData(byte[] data) {
         long accessKey = randomOfAccessKeys.nextLong();
         random.setSeed(accessKey);
         byte[] gamma = new byte[data.length];
@@ -56,12 +56,12 @@ public class InfinityArray extends InfinityFile {
         return accessKey;
     }
 
-    private void decodeData(byte[] data, long accessKey){
+    public static void decodeData(byte[] data, long accessKey){
         random.setSeed(accessKey);
         byte[] gamma = new byte[data.length];
         random.nextBytes(gamma);
         for (int i = 0; i < data.length; i++)
-            data[i] = (byte) (Math.abs(data[i] - gamma[i]));
+            data[i] = (byte) ((256 + (data[i] - gamma[i])) % 256);
     }
 
     public void set(long index, byte[] data) {
@@ -95,7 +95,8 @@ public class InfinityArray extends InfinityFile {
     }
 
     public void set(long index, String data) {
-        set(index, data.getBytes());
+        stringCell.str = data;
+        set(index, stringCell);
     }
 
     public void set(long index, InfinityArrayCell cell) {
@@ -138,8 +139,10 @@ public class InfinityArray extends InfinityFile {
     public long add(byte[] data) {
         MetaNode metaNode = new MetaNode();
         byte[] sector = dataToSector(data);
+        long newAccessKey = encodeData(sector);
         metaNode.start = super.add(sector);
         metaNode.length = data.length;
+        metaNode.accessKey = newAccessKey;
         return meta.add(metaNode);
     }
 

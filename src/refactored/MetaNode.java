@@ -16,7 +16,7 @@ public class MetaNode implements InfinityArrayCell {
 
     @Override
     public byte[] getBytes() {
-        long[] data = new long[2];
+        long[] data = new long[3];
         data[0] = start;
         data[1] = length;
         data[2] = accessKey;
