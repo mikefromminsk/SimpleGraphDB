@@ -30,11 +30,12 @@ public class InfinityArray extends InfinityFile {
         return metaNode;
     }
 
-    public void get(long index, InfinityArrayCell dest) {
+    public InfinityArrayCell get(long index, InfinityArrayCell dest) {
         MetaNode metaNode = getMetaNode(index);
         byte[] readiedData = read(metaNode.start, metaNode.length);
         decodeData(readiedData, metaNode.accessKey);
         dest.parse(readiedData);
+        return dest;
     }
 
     private StringCellConst stringCell = new StringCellConst();

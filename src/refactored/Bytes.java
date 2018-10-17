@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.util.ArrayList;
 
 public class Bytes {
 
@@ -62,11 +63,19 @@ public class Bytes {
         return byteBuffer.array();
     }
 
+    public static byte[] fromLongList(ArrayList<Long> arr) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(arr.size() * Long.BYTES);
+        LongBuffer longBuffer = byteBuffer.asLongBuffer();
+        for (int i = 0; i < arr.size(); i++)
+            longBuffer.put(i, arr.get(i));
+        return byteBuffer.array();
+    }
+
     public static byte[] fromString(String mask) {
         return mask.getBytes();
     }
 
-    public static byte[] concat(byte[] a, byte[] b){
+    public static byte[] concat(byte[] a, byte[] b) {
         byte[] c = new byte[a.length + b.length];
         System.arraycopy(a, 0, c, 0, a.length);
         System.arraycopy(b, 0, c, a.length, b.length);
