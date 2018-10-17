@@ -11,7 +11,7 @@ public class InfinityArrayTest {
         String startData = "start data";
         byte[] data = startData.getBytes();
         long accessKey = InfinityArray.encodeData(data);
-        assertNotEquals(startData, new String(data));
+        assertFalse(new String(data).equals(startData));
         InfinityArray.decodeData(data, accessKey);
         assertEquals(startData, new String(data));
     }

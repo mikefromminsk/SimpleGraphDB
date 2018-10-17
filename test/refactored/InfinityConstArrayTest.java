@@ -6,17 +6,17 @@ import static org.junit.Assert.*;
 
 public class InfinityConstArrayTest {
 
-    class TestCell implements InfinityArrayCell {
+    class TestCellParser implements InfinityArrayCell {
 
         long field1;
         long field2;
 
-        public TestCell() {
+        public TestCellParser() {
             this.field1 = 0;
             this.field2 = 0;
         }
 
-        public TestCell(long field1, long field2) {
+        public TestCellParser(long field1, long field2) {
             this.field1 = field1;
             this.field2 = field2;
         }
@@ -46,9 +46,9 @@ public class InfinityConstArrayTest {
     @Test
     public void add() {
         InfinityConstArray testConstArray = new InfinityConstArray("constArrayTest");
-        long index1 = testConstArray.add(new TestCell(258, 789));
-        long index2 = testConstArray.add(new TestCell(345, 674));
-        TestCell destination = new TestCell();
+        long index1 = testConstArray.add(new TestCellParser(258, 789));
+        long index2 = testConstArray.add(new TestCellParser(345, 674));
+        TestCellParser destination = new TestCellParser();
         testConstArray.get(index1, destination);
         assertEquals(258, destination.field1);
         testConstArray.get(index2, destination);
