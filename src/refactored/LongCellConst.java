@@ -1,11 +1,11 @@
 package refactored;
 
-public class LongCell implements InfinityArrayCell {
+public class LongCellConst implements InfinityConstArrayCell {
 
     long value = 0;
 
     @Override
-    public void setData(byte[] data) {
+    public void parse(byte[] data) {
         value = Bytes.toLong(data);
     }
 
@@ -14,7 +14,7 @@ public class LongCell implements InfinityArrayCell {
     }
 
     @Override
-    public byte[] getBytes() {
+    public byte[] build() {
         return Bytes.fromLong(value);
     }
 

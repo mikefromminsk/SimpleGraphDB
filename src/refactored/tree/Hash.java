@@ -1,9 +1,9 @@
 package refactored.tree;
 
 import refactored.Bytes;
-import refactored.InfinityArrayCell;
+import refactored.InfinityConstArrayCell;
 
-public class Hash implements InfinityArrayCell {
+public class Hash implements InfinityConstArrayCell {
 
     public final static int SIZE = 3 * Long.BYTES;
 
@@ -18,14 +18,14 @@ public class Hash implements InfinityArrayCell {
     }
 
     @Override
-    public void setData(byte[] data) {
+    public void parse(byte[] data) {
         long[] array = Bytes.toLongArray(data);
         first8Bytes = array[0];
         keyIndex = array[1];
         value = array[2];
     }
 
-    public byte[] getBytes() {
+    public byte[] build() {
         long[] data = new long[3];
         data[0] = first8Bytes;
         data[1] = keyIndex;

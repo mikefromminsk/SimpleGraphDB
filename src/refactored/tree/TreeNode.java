@@ -1,11 +1,11 @@
 package refactored.tree;
 
 import refactored.Bytes;
-import refactored.InfinityArrayCell;
+import refactored.InfinityConstArrayCell;
 
 import java.util.Arrays;
 
-public class TreeNode implements InfinityArrayCell {
+public class TreeNode implements InfinityConstArrayCell {
 
 
     public final static int MASK_SIZE = 4;
@@ -20,7 +20,7 @@ public class TreeNode implements InfinityArrayCell {
     }
 
     public TreeNode(byte[] data) {
-        setData(data);
+        parse(data);
     }
 
     public TreeNode(byte[] mask, long[] links) {
@@ -29,14 +29,14 @@ public class TreeNode implements InfinityArrayCell {
     }
 
     @Override
-    public void setData(byte[] data) {
+    public void parse(byte[] data) {
         this.mask = Arrays.copyOfRange(data, 0, MASK_SIZE);
         byte[] linksArr = Arrays.copyOfRange(data, MASK_SIZE, MASK_SIZE + LINKS_SIZE);
         this.links = Bytes.toLongArray(linksArr);
     }
 
     @Override
-    public byte[] getBytes() {
+    public byte[] build() {
         byte[] data = new byte[MASK_SIZE + LINKS_SIZE];
         System.arraycopy(mask, 0, data, 0, MASK_SIZE);
         System.arraycopy(Bytes.fromLongArray(links), 0, data, MASK_SIZE, LINKS_SIZE);

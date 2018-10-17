@@ -1,12 +1,12 @@
 package refactored.tree;
 
 import refactored.Bytes;
-import refactored.InfinityArrayCell;
+import refactored.InfinityConstArrayCell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class HashVariants implements InfinityArrayCell {
+public class HashVariants implements InfinityConstArrayCell {
 
     public byte[] mask;
     public ArrayList<Hash> hashes  = new ArrayList<>();
@@ -20,7 +20,7 @@ public class HashVariants implements InfinityArrayCell {
     }
 
     @Override
-    public void setData(byte[] data) {
+    public void parse(byte[] data) {
         hashes.clear();
         this.mask = Arrays.copyOfRange(data, 0, TreeNode.MASK_SIZE);
         int hashVariantsCount = (data.length - TreeNode.MASK_SIZE) / Hash.SIZE;
@@ -32,11 +32,11 @@ public class HashVariants implements InfinityArrayCell {
     }
 
     @Override
-    public byte[] getBytes() {
+    public byte[] build() {
         byte[] data = new byte[TreeNode.MASK_SIZE + hashes.size() * Hash.SIZE];
         System.arraycopy(mask, 0, data, 0, TreeNode.MASK_SIZE);
         for (int i = 0; i < hashes.size(); i++)
-            System.arraycopy(hashes.get(i).getBytes(), 0, data, TreeNode.MASK_SIZE + i * Hash.SIZE, Hash.SIZE);
+            System.arraycopy(hashes.get(i).build(), 0, data, TreeNode.MASK_SIZE + i * Hash.SIZE, Hash.SIZE);
         return data;
     }
 

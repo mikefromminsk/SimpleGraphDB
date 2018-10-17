@@ -34,10 +34,10 @@ public class InfinityArray extends InfinityFile {
         MetaNode metaNode = getMetaNode(index);
         byte[] readiedData = read(metaNode.start, metaNode.length);
         decodeData(readiedData, metaNode.accessKey);
-        dest.setData(readiedData);
+        dest.parse(readiedData);
     }
 
-    private StringCell stringCell = new StringCell();
+    private StringCellConst stringCell = new StringCellConst();
     public String getString(long index) {
         get(index, stringCell);
         return stringCell.str;
@@ -100,7 +100,7 @@ public class InfinityArray extends InfinityFile {
     }
 
     public void set(long index, InfinityArrayCell cell) {
-        set(index, cell.getBytes());
+        set(index, cell.build());
     }
 
     public void addToGarbage(long index, long sectorSize) {
@@ -151,7 +151,7 @@ public class InfinityArray extends InfinityFile {
     }
 
     public long add(InfinityArrayCell cell) {
-        return add(cell.getBytes());
+        return add(cell.build());
     }
 
     private int getSectorLength(int dataLength) {

@@ -1,9 +1,7 @@
 package refactored;
 
 public interface InfinityArrayCell {
-    void setData(byte[] data);
+    void parse(byte[] data);
 
-    byte[] getBytes();
-
-    int getSize();
+    byte[] build();
 }
