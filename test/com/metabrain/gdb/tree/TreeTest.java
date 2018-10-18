@@ -1,8 +1,7 @@
-package refactored.tree;
+package com.metabrain.gdb.tree;
 
 import org.junit.Test;
 
-import java.util.Date;
 import java.util.Random;
 
 import static org.junit.Assert.*;

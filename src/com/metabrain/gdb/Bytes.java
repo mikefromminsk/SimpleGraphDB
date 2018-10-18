@@ -1,4 +1,4 @@
-package refactored;
+package com.metabrain.gdb;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

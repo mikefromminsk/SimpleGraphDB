@@ -1,4 +1,4 @@
-package refactored;
+package com.metabrain.gdb;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,21 +24,21 @@ public class InfinityArray extends InfinityFile {
             }
     }
 
-    private MetaNode getMetaNode(long index) {
-        MetaNode metaNode = new MetaNode();
-        meta.get(index, metaNode);
-        return metaNode;
+    public MetaCell getMeta(long index) {
+        MetaCell metaCell = new MetaCell();
+        meta.get(index, metaCell);
+        return metaCell;
     }
 
     public InfinityArrayCell get(long index, InfinityArrayCell dest) {
-        MetaNode metaNode = getMetaNode(index);
-        byte[] readiedData = read(metaNode.start, metaNode.length);
-        decodeData(readiedData, metaNode.accessKey);
+        MetaCell metaCell = getMeta(index);
+        byte[] readiedData = read(metaCell.start, metaCell.length);
+        decodeData(readiedData, metaCell.accessKey);
         dest.parse(readiedData);
         return dest;
     }
 
-    private StringCellConst stringCell = new StringCellConst();
+    private StringCell stringCell = new StringCell();
     public String getString(long index) {
         get(index, stringCell);
         return stringCell.str;
@@ -66,20 +66,20 @@ public class InfinityArray extends InfinityFile {
     }
 
     public void set(long index, byte[] data) {
-        MetaNode metaNode = getMetaNode(index);
-        int lastSectorLength = getSectorLength((int) metaNode.length);
+        MetaCell metaCell = getMeta(index);
+        int lastSectorLength = getSectorLength((int) metaCell.length);
         int newSectorLength = getSectorLength(data.length);
         if (newSectorLength > lastSectorLength) {
-            MetaNode garbage = getGarbage(newSectorLength);
+            MetaCell garbage = getGarbage(newSectorLength);
             addToGarbage(index, lastSectorLength);
             byte[] sectorWithData = new byte[newSectorLength];
             System.arraycopy(data, 0, sectorWithData, 0, data.length);
             long newAccessKey = encodeData(sectorWithData);
             if (garbage == null) {
-                metaNode.start = super.add(sectorWithData);
-                metaNode.length = data.length;
-                metaNode.accessKey = newAccessKey;
-                meta.set(index, metaNode);
+                metaCell.start = super.add(sectorWithData);
+                metaCell.length = data.length;
+                metaCell.accessKey = newAccessKey;
+                meta.set(index, metaCell);
             } else {
                 write(garbage.start, sectorWithData);
                 garbage.length = data.length;
@@ -89,9 +89,9 @@ public class InfinityArray extends InfinityFile {
         } else {
             byte[] sectorWithData = new byte[lastSectorLength];
             System.arraycopy(data, 0, sectorWithData, 0, data.length);
-            metaNode.accessKey = encodeData(sectorWithData);
-            meta.set(index, metaNode);
-            write(metaNode.start, sectorWithData);
+            metaCell.accessKey = encodeData(sectorWithData);
+            meta.set(index, metaCell);
+            write(metaCell.start, sectorWithData);
         }
     }
 
@@ -125,26 +125,26 @@ public class InfinityArray extends InfinityFile {
         }
     }
 
-    public MetaNode getGarbage(long sectorSize) {
+    public MetaCell getGarbage(long sectorSize) {
         InfinityConstArray garbageBySize = garbageCollector.get(sectorSize);
         if (garbageBySize != null) {
             long lastGarbageIndex = garbageBySize.getLong(0);
             if (lastGarbageIndex > 1) {
                 garbageBySize.set(0, lastGarbageIndex - 1);
-                return getMetaNode(garbageBySize.getLong(lastGarbageIndex));
+                return getMeta(garbageBySize.getLong(lastGarbageIndex));
             }
         }
         return null;
     }
 
     public long add(byte[] data) {
-        MetaNode metaNode = new MetaNode();
+        MetaCell metaCell = new MetaCell();
         byte[] sector = dataToSector(data);
         long newAccessKey = encodeData(sector);
-        metaNode.start = super.add(sector);
-        metaNode.length = data.length;
-        metaNode.accessKey = newAccessKey;
-        return meta.add(metaNode);
+        metaCell.start = super.add(sector);
+        metaCell.length = data.length;
+        metaCell.accessKey = newAccessKey;
+        return meta.add(metaCell);
     }
 
     public long add(String data) {

@@ -1,6 +1,6 @@
-package refactored.tree;
+package com.metabrain.gdb.tree;
 
-import refactored.Bytes;
+import com.metabrain.gdb.Bytes;
 
 public class CRC16 {
 

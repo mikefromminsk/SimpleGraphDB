@@ -1,4 +1,4 @@
-package refactored;
+package com.metabrain.gdb;
 
 import org.junit.Test;
 

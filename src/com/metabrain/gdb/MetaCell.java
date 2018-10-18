@@ -1,6 +1,6 @@
-package refactored;
+package com.metabrain.gdb;
 
-public class MetaNode implements InfinityConstArrayCell {
+public class MetaCell implements InfinityConstArrayCell {
 
     public long start;
     public long length;

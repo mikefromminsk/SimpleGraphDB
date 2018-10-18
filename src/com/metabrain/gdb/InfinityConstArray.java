@@ -1,4 +1,4 @@
-package refactored;
+package com.metabrain.gdb;
 
 public class InfinityConstArray extends InfinityFile {
 
@@ -11,7 +11,7 @@ public class InfinityConstArray extends InfinityFile {
         dest.parse(readiedData);
     }
 
-    LongCellConst longCell = new LongCellConst();
+    LongCell longCell = new LongCell();
     public long getLong(long index) {
         get(index, longCell);
         return longCell.value;

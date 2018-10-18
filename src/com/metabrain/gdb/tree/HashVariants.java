@@ -1,7 +1,7 @@
-package refactored.tree;
+package com.metabrain.gdb.tree;
 
-import refactored.Bytes;
-import refactored.InfinityConstArrayCell;
+import com.metabrain.gdb.Bytes;
+import com.metabrain.gdb.InfinityConstArrayCell;
 
 import java.util.ArrayList;
 import java.util.Arrays;

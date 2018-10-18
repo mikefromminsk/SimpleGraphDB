@@ -1,6 +1,6 @@
-package refactored;
+package com.metabrain.gdb;
 
-public class LongCellConst implements InfinityConstArrayCell {
+public class LongCell implements InfinityConstArrayCell {
 
     long value = 0;
 

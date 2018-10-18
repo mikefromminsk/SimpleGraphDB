@@ -1,7 +1,7 @@
-package refactored;
+package com.metabrain.gdb;
 
 
-public class StringCellConst implements InfinityConstArrayCell {
+public class StringCell implements InfinityConstArrayCell {
 
     public String str;
 
