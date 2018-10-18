@@ -6,9 +6,10 @@ public class InfinityConstArray extends InfinityFile {
         super(infinityFileID);
     }
 
-    public void get(long index, InfinityConstArrayCell dest) {
+    public InfinityConstArrayCell get(long index, InfinityConstArrayCell dest) {
         byte[] readiedData = read(index * dest.getSize(), dest.getSize());
         dest.parse(readiedData);
+        return dest;
     }
 
     LongCell longCell = new LongCell();

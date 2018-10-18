@@ -8,7 +8,7 @@ public class InfinityArray extends InfinityFile {
 
     // TODO add secure
 
-    private InfinityConstArray meta;
+    protected InfinityConstArray meta;
     Map<Long, InfinityConstArray> garbageCollector = new HashMap<>();
 
 
@@ -25,9 +25,7 @@ public class InfinityArray extends InfinityFile {
     }
 
     public MetaCell getMeta(long index) {
-        MetaCell metaCell = new MetaCell();
-        meta.get(index, metaCell);
-        return metaCell;
+        return (MetaCell) meta.get(index, new MetaCell());
     }
 
     public InfinityArrayCell get(long index, InfinityArrayCell dest) {
