@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class InfinityFileTest {
+class InfinityFileTest {
 
     @Test
-    public void testReadFromWriteBuffer1() {
+    void testReadFromWriteBuffer1() {
         InfinityFile file = new InfinityFile("test1");
         byte[] testData = "test".getBytes();
         long position = file.add(testData);

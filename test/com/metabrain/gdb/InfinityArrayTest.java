@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class InfinityArrayTest {
+class InfinityArrayTest {
 
     @Test
-    public void testEncodingDecoding() {
+    void testEncodingDecoding() {
         String startData = "start data";
         byte[] data = startData.getBytes();
         long accessKey = InfinityArray.encodeData(data);
@@ -18,7 +18,7 @@ public class InfinityArrayTest {
     }
 
     @Test
-    public void add() {
+    void add() {
         InfinityArray testArray = new InfinityArray("testArray");
         long index = testArray.add("tests");
         testArray.set(index, "bests");
@@ -27,7 +27,7 @@ public class InfinityArrayTest {
     }
 
     @Test
-    public void testAddToGarbage() throws Exception {
+    void testAddToGarbage() throws Exception {
         InfinityArray arr = new InfinityArray("testArrayGarbage");
         long index = arr.add("test");
         arr.set(index, "testss");

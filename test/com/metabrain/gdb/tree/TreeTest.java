@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TreeTest {
 
     @Test
-    public void put() {
+    void put() {
         int randomInt = new Random(System.currentTimeMillis()).nextInt(1000);
         Tree tree = new Tree("tree" + randomInt);
         assertEquals( TreeNode.SIZE, tree.fileData.sumFilesSize);
