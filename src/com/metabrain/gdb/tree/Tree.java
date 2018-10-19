@@ -6,14 +6,14 @@ import com.metabrain.gdb.InfinityConstArray;
 
 import java.util.Arrays;
 
-class Tree extends InfinityConstArray {
+public class Tree extends InfinityConstArray {
     // TODO delete new and use only 3 objects to search
     // TODO HALF_LONG value change to max tree node count
     private final static long HALF_LONG = 1000000000000000000L;
     private InfinityArray keys;
     private InfinityArray hashes;
 
-    Tree(String infinityFileID) {
+    public Tree(String infinityFileID) {
         super(infinityFileID);
         keys = new InfinityArray(infinityFileID + ".keys");
         hashes = new InfinityArray(infinityFileID + ".hashes");
@@ -21,7 +21,7 @@ class Tree extends InfinityConstArray {
             add(new TreeNode("****".getBytes(), new long[TreeNode.LINKS_COUNT]));
     }
 
-    void put(String str, byte[] hash, long value) {
+    public void put(String str, byte[] hash, long value) {
         TreeNode node = new TreeNode();
         long prevIndex = Long.MAX_VALUE;
         long nodeIndex = 0;
@@ -102,7 +102,7 @@ class Tree extends InfinityConstArray {
         }
     }
 
-    long get(String str, byte[] hash) {
+    public long get(String str, byte[] hash) {
         TreeNode node = new TreeNode();
         long nodeIndex = 0;
         int i = 0;
