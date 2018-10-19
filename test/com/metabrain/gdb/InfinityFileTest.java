@@ -1,9 +1,13 @@
 package com.metabrain.gdb;
 
-import junit.framework.TestCase;
 
-public class InfinityFileTest extends TestCase {
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class InfinityFileTest {
+
+    @Test
     public void testReadFromWriteBuffer1() {
         InfinityFile file = new InfinityFile("test1");
         byte[] testData = "test".getBytes();
