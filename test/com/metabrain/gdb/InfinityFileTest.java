@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class InfinityFileTest {
+public class InfinityFileTest {
 
     @Test
     void testReadFromWriteBuffer1() {
