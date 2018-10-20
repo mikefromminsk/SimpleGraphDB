@@ -9,7 +9,7 @@ public class ActionThread implements Runnable {
     private static final boolean ACTION_READ = true;
     private static final boolean ACTION_WRITE = false;
     private int threadsWaiting = 0;
-    private final Object syncWriteLoopObject = 1;
+    private final Object syncObject = 1;
     private Map<RandomAccessFile, Map<Integer, CacheData>> cache = new HashMap<>();
     private List<CacheData> writeSequences = new LinkedList<>();
     public long maxCacheSize;
@@ -96,8 +96,8 @@ public class ActionThread implements Runnable {
         }
         writeSequences.add(cachedData);
 
-        synchronized (syncWriteLoopObject) {
-            syncWriteLoopObject.notify();
+        synchronized (syncObject) {
+            syncObject.notify();
         }
     }
 
@@ -115,9 +115,9 @@ public class ActionThread implements Runnable {
                     }
                 }
             } else {
-                synchronized (syncWriteLoopObject) {
+                synchronized (syncObject) {
                     try {
-                        syncWriteLoopObject.wait();
+                        syncObject.wait();
                     } catch (InterruptedException continueLoop) {
                     }
                 }
@@ -136,8 +136,8 @@ public class ActionThread implements Runnable {
             } finally {
                 threadsWaiting--;
                 if (threadsWaiting == 0) {
-                    synchronized (syncWriteLoopObject) {
-                        syncWriteLoopObject.notify();
+                    synchronized (syncObject) {
+                        syncObject.notify();
                     }
                 }
             }
