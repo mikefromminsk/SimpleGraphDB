@@ -2,11 +2,11 @@ package com.metabrain.gdb.tree;
 
 import com.metabrain.gdb.Bytes;
 
-public class CRC16 {
+public class Crc16 {
 
     private String str;
 
-    public CRC16(String str) {
+    public Crc16(String str) {
         this.str = str;
     }
 
