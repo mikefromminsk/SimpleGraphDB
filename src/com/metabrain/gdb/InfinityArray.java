@@ -24,8 +24,12 @@ public class InfinityArray extends InfinityFile {
             }
     }
 
-    public MetaCell getMeta(long index) {
-        return (MetaCell) meta.get(index, new MetaCell());
+    public MetaCell initMeta() {
+        return new MetaCell();
+    }
+
+    protected MetaCell getMeta(long index) {
+        return (MetaCell) meta.get(index, initMeta());
     }
 
     public InfinityArrayCell get(long index, InfinityArrayCell dest) {
@@ -37,6 +41,7 @@ public class InfinityArray extends InfinityFile {
     }
 
     private StringCell stringCell = new StringCell();
+
     public String getString(long index) {
         get(index, stringCell);
         return stringCell.str;
@@ -55,7 +60,7 @@ public class InfinityArray extends InfinityFile {
         return accessKey;
     }
 
-    public static void decodeData(byte[] data, long accessKey){
+    public static void decodeData(byte[] data, long accessKey) {
         random.setSeed(accessKey);
         byte[] gamma = new byte[data.length];
         random.nextBytes(gamma);
@@ -135,8 +140,9 @@ public class InfinityArray extends InfinityFile {
         return null;
     }
 
+
     public long add(byte[] data) {
-        MetaCell metaCell = new MetaCell();
+        MetaCell metaCell = initMeta();
         byte[] sector = dataToSector(data);
         long newAccessKey = encodeData(sector);
         metaCell.start = super.add(sector);
