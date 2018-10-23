@@ -109,6 +109,7 @@ public class InfinityArray extends InfinityFile {
 
     public void addToGarbage(long index, long sectorSize) {
         InfinityConstArray garbageBySize = garbageCollector.get(sectorSize);
+        if (true) return;
         if (garbageBySize == null) {
             String garbageName = infinityFileID + ".garbage";
             String garbageNameWithSize = garbageName + sectorSize;
@@ -129,6 +130,8 @@ public class InfinityArray extends InfinityFile {
     }
 
     public MetaCell getGarbage(long sectorSize) {
+        // TODO enable garbage collector
+        if (true) return null;
         InfinityConstArray garbageBySize = garbageCollector.get(sectorSize);
         if (garbageBySize != null) {
             long lastGarbageIndex = garbageBySize.getLong(0);

@@ -107,7 +107,7 @@ public class Tree extends InfinityConstArray {
         long nodeIndex = 0;
         int i = 0;
         while (i < TreeNode.SIZE) {
-            get(nodeIndex, node);
+            node = (TreeNode) get(nodeIndex, node);
             byte hashChar = hash[i];
             byte nodeChar = node.mask[i];
             while (nodeChar == hashChar && i + 1 < TreeNode.SIZE) {
@@ -116,7 +116,11 @@ public class Tree extends InfinityConstArray {
                 nodeChar = node.mask[i];
             }
             if (nodeChar == '*') {
-                hashChar -= '0';
+                if (hashChar >= 0 && hashChar <= '9')
+                    hashChar -= '0';
+                if (hashChar >= 'a' && hashChar <= 'z')
+                    hashChar -= 'a';
+
                 long link = node.links[hashChar];
                 if (link == 0) {
                     return Long.MAX_VALUE;
@@ -142,7 +146,7 @@ public class Tree extends InfinityConstArray {
         return Long.MAX_VALUE;
     }
 
-    private long getFirst8Bytes(String key){
+    private long getFirst8Bytes(String key) {
         String firstChars = key.substring(0, Math.min(7, key.length() - 1));
         byte[] firstly8Bytes = new byte[Long.BYTES];
         System.arraycopy(firstChars.getBytes(), 0, firstly8Bytes, 0, firstChars.length());
