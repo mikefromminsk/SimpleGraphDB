@@ -105,8 +105,8 @@ public class ActionThread implements Runnable {
     public void run() {
         while (true) {
             if (threadsWaiting == 0 && writeSequences.size() > 0) {
-                CacheData action = writeSequences.get(0);
                 // TODO find why action cab be null
+                CacheData action = writeSequences.get(0); // NullPointerException
                 if (action != null) {
                     boolean success = doAction(ACTION_WRITE, action.file, action.offset, action.data);
                     if (success) {
