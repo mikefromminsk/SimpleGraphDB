@@ -1,8 +1,4 @@
 package com.metabrain.gdb;
 
-public interface InfinityArrayCell {
-
-    byte[] build();
-
-    void parse(byte[] data);
+public interface InfinityArrayCell extends InfinityArrayCellParser, InfinityArrayCellBuilder {
 }

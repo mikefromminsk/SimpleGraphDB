@@ -32,7 +32,7 @@ public class InfinityArray extends InfinityFile {
         return (MetaCell) meta.get(index, initMeta());
     }
 
-    public InfinityArrayCell get(long index, InfinityArrayCell dest) {
+    public InfinityArrayCellParser get(long index, InfinityArrayCellParser dest) {
         MetaCell metaCell = getMeta(index);
         byte[] readiedData = read(metaCell.start, metaCell.length);
         decodeData(readiedData, metaCell.accessKey);
@@ -103,7 +103,7 @@ public class InfinityArray extends InfinityFile {
         set(index, stringCell);
     }
 
-    public void set(long index, InfinityArrayCell cell) {
+    public void set(long index, InfinityArrayCellBuilder cell) {
         set(index, cell.build());
     }
 
@@ -158,7 +158,7 @@ public class InfinityArray extends InfinityFile {
         return add(data.getBytes());
     }
 
-    public long add(InfinityArrayCell cell) {
+    public long add(InfinityArrayCellBuilder cell) {
         return add(cell.build());
     }
 
