@@ -4,17 +4,15 @@ import com.metabrain.gdb.Bytes;
 
 public class Crc16 {
 
-    private String str;
-
-    public Crc16(String str) {
-        this.str = str;
-    }
-
-    public String getHash() {
-        return new String(getHash(str));
-    }
-
     public static byte[] getHash(String str) {
+        return getHash(0, str.getBytes());
+    }
+
+    public static byte[] getHash(byte[] bytes) {
+        return getHash(0, bytes);
+    }
+
+    public static byte[] getHash(int hash, byte[] bytes) {
         int[] table = {
                 0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
                 0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
@@ -50,11 +48,9 @@ public class Crc16 {
                 0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,
         };
 
-        byte[] bytes = str.getBytes();
-        int crc = 0x0000;
         for (byte b : bytes)
-            crc = (crc >>> 8) ^ table[(crc ^ b) & 0xff];
-        return Bytes.fromString(Integer.toHexString(crc));
+            hash = (hash >>> 8) ^ table[(hash ^ b) & 0xff];
+        return Bytes.fromString(Integer.toHexString(hash));
     }
 
 }

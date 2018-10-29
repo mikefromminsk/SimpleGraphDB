@@ -3,6 +3,7 @@ package com.metabrain.gdb;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Random;
 
 public class DiskManager {
 
@@ -71,4 +72,14 @@ public class DiskManager {
         // TODO testing of all disks
     }
 
+    public String getBigFile() {
+        return null;
+    }
+
+    private static Random random = new Random();
+    public File newBigFile() {
+        File newFile = new File(dbDir, random.nextLong() + ".data");
+        // TODO create file
+        return newFile;
+    }
 }

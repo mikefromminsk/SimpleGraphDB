@@ -9,7 +9,6 @@ import java.util.Map;
 
 public class InfinityFile {
 
-    public final static int MAX_STORAGE_DATA_IN_DB = 2048;
     public final static String INFINITY_FILE_PART_PREFIX = "part";
     public long partSize;
     String infinityFileID;
@@ -66,10 +65,6 @@ public class InfinityFile {
         if (end > fileData.sumFilesSize)
             return null;
 
-        if (length > MAX_STORAGE_DATA_IN_DB) {
-            // TODO return file descriptor
-        }
-
         int startFileIndex = (int) (start / partSize);
         int endFileIndex = (int) (end / partSize);
         if (startFileIndex == endFileIndex) {
@@ -94,10 +89,6 @@ public class InfinityFile {
         long end = start + length;
         if (start > fileData.sumFilesSize)
             return;
-
-        if (length > MAX_STORAGE_DATA_IN_DB) {
-            // TODO save to file system
-        }
 
         int startFileIndex = (int) (start / partSize);
         int endFileIndex = (int) (end / partSize);

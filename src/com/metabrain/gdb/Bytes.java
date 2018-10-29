@@ -1,10 +1,9 @@
 package com.metabrain.gdb;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
+import java.nio.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Bytes {
 
@@ -80,5 +79,9 @@ public class Bytes {
         System.arraycopy(a, 0, c, 0, a.length);
         System.arraycopy(b, 0, c, a.length, b.length);
         return c;
+    }
+
+    public static byte[] fromCharArray(char[]  chars) {
+        return Charset.forName("UTF-8").encode(CharBuffer.wrap(chars)).array();
     }
 }

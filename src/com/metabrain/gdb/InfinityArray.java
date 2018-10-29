@@ -146,11 +146,13 @@ public class InfinityArray extends InfinityFile {
 
     public long add(byte[] data) {
         MetaCell metaCell = initMeta();
-        byte[] sector = dataToSector(data);
-        long newAccessKey = encodeData(sector);
-        metaCell.start = super.add(sector);
-        metaCell.length = data.length;
-        metaCell.accessKey = newAccessKey;
+        if (data != null && data.length != 0) {
+            byte[] sector = dataToSector(data);
+            long newAccessKey = encodeData(sector);
+            metaCell.start = super.add(sector);
+            metaCell.length = data.length;
+            metaCell.accessKey = newAccessKey;
+        }
         return meta.add(metaCell);
     }
 
