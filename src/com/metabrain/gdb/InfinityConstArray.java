@@ -8,9 +8,6 @@ public class InfinityConstArray extends InfinityFile {
 
     public InfinityConstArrayCell get(long index, InfinityConstArrayCell dest) {
         byte[] readiedData = read(index * dest.getSize(), dest.getSize());
-        if (readiedData == null){
-            int i=0;
-        }
         dest.parse(readiedData);
         return dest;
     }

@@ -90,10 +90,6 @@ public class ActionThread implements Runnable {
             cachedData.isUpdated = true;
             writeSequences.remove(cachedData);
         }
-        if (cachedData == null) {
-            int i = 0;
-            i++;
-        }
         writeSequences.add(cachedData);
 
         synchronized (syncObject) {

@@ -72,14 +72,7 @@ public class DiskManager {
         // TODO testing of all disks
     }
 
-    public String getBigFile() {
-        return null;
-    }
-
-    private static Random random = new Random();
-    public File newBigFile() {
-        File newFile = new File(dbDir, random.nextLong() + ".data");
-        // TODO create file
-        return newFile;
+    public File getFileById(long fileId) {
+        return new File(dbDir, fileId + ".data");
     }
 }
