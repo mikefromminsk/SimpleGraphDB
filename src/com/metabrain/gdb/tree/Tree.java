@@ -40,7 +40,10 @@ public class Tree extends InfinityConstArray {
                 nodeChar = node.mask[i];
             }
             if (nodeChar == '*') {
-                hashChar -= '0';
+                if (hashChar >= 0 && hashChar <= '9')
+                    hashChar -= '0';
+                if (hashChar >= 'a' && hashChar <= 'z')
+                    hashChar -= 'a';
                 long link = node.links[hashChar];
                 if (link == 0) {
                     Hash hash1 = new Hash(getFirst8Bytes(hashKey), keys.add(hashKey), value);

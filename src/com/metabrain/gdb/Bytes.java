@@ -84,4 +84,9 @@ public class Bytes {
     public static byte[] fromCharArray(char[]  chars) {
         return Charset.forName("UTF-8").encode(CharBuffer.wrap(chars)).array();
     }
+
+    public static char[] toCharAray(byte[] bytes) {
+        String str = new String(bytes);
+        return str.toCharArray();
+    }
 }
