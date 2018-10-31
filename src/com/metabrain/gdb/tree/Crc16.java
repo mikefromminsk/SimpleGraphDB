@@ -9,7 +9,11 @@ public class Crc16 {
     }
 
     public static byte[] getHashBytes(String str) {
-        return hashToBytes(getHash(0, str.getBytes()));
+        return getHashBytes(str.getBytes());
+    }
+
+    public static byte[] getHashBytes(byte[] data) {
+        return hashToBytes(getHash(0, data));
     }
 
     public static int getHash(String str) {
