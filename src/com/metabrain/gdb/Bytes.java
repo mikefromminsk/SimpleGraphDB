@@ -3,7 +3,6 @@ package com.metabrain.gdb;
 import java.nio.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Bytes {
 
@@ -85,8 +84,15 @@ public class Bytes {
         return Charset.forName("UTF-8").encode(CharBuffer.wrap(chars)).array();
     }
 
-    public static char[] toCharAray(byte[] bytes) {
+    public static char[] toCharArray(byte[] bytes) {
         String str = new String(bytes);
         return str.toCharArray();
+    }
+
+    public static byte[] append(byte[] a, byte[] b) {
+        byte[] result = new byte[a.length + b.length];
+        System.arraycopy(a, 0, result, 0, a.length);
+        System.arraycopy(b, 0, result, a.length, b.length);
+        return result;
     }
 }
