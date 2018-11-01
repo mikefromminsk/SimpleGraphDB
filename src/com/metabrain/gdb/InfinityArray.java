@@ -52,20 +52,20 @@ public class InfinityArray extends InfinityFile {
 
     public static long encodeData(byte[] data) {
         long accessKey = randomOfAccessKeys.nextLong();
-        random.setSeed(accessKey);
+        /*random.setSeed(accessKey);
         byte[] gamma = new byte[data.length];
         random.nextBytes(gamma);
         for (int i = 0; i < data.length; i++)
-            data[i] = (byte) ((data[i] + gamma[i]) % 256);
+            data[i] = (byte) ((data[i] + gamma[i]) % 256);*/
         return accessKey;
     }
 
     public static void decodeData(byte[] data, long accessKey) {
-        random.setSeed(accessKey);
+        /*random.setSeed(accessKey);
         byte[] gamma = new byte[data.length];
         random.nextBytes(gamma);
         for (int i = 0; i < data.length; i++)
-            data[i] = (byte) ((256 + (data[i] - gamma[i])) % 256);
+            data[i] = (byte) ((256 + (data[i] - gamma[i])) % 256);*/
     }
 
     public void set(long index, byte[] data) {
