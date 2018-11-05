@@ -29,5 +29,6 @@ public class TreeTest {
         assertEquals(345, value);
         value = tree.get("String1", "3012".getBytes());
         assertEquals(123, value);
+        // TODO add tests with letters abcdef in hash
     }
 }

@@ -5,7 +5,15 @@ import com.metabrain.gdb.Bytes;
 public class Crc16 {
 
     public static byte[] hashToBytes(int hash){
-        return Bytes.fromString(Integer.toHexString(hash));
+        String hashStr = Integer.toHexString(hash);
+        // TODO bug with Tree.java - letters in hash
+        hashStr = hashStr.replace('a', '0');
+        hashStr = hashStr.replace('b', '0');
+        hashStr = hashStr.replace('c', '0');
+        hashStr = hashStr.replace('d', '0');
+        hashStr = hashStr.replace('e', '0');
+        hashStr = hashStr.replace('f', '0');
+        return Bytes.fromString(hashStr);
     }
 
     public static byte[] getHashBytes(String str) {

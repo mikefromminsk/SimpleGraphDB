@@ -25,6 +25,14 @@ public class Tree extends InfinityConstArray {
         put(str.getBytes(), hash, value);
     }
 
+    byte hexCharToInt(byte ch) {
+        if (ch >= 0 && ch <= '9')
+            ch -= '0';
+        else if (ch >= 'a' && ch <= 'z')
+            ch -= 'a';
+        return ch;
+    }
+
     public void put(byte[] hashKey, byte[] hash, long value) {
         TreeNode node = new TreeNode();
         long prevIndex = Long.MAX_VALUE;
@@ -40,10 +48,7 @@ public class Tree extends InfinityConstArray {
                 nodeChar = node.mask[i];
             }
             if (nodeChar == '*') {
-                if (hashChar >= 0 && hashChar <= '9')
-                    hashChar -= '0';
-                if (hashChar >= 'a' && hashChar <= 'z')
-                    hashChar -= 'a';
+                hashChar = hexCharToInt(hashChar);
                 long link = node.links[hashChar];
                 if (link == 0) {
                     Hash hash1 = new Hash(getFirst8Bytes(hashKey), keys.add(hashKey), value);
@@ -80,8 +85,8 @@ public class Tree extends InfinityConstArray {
                         for (; hash[j] == hashVariants.mask[j]; j++)
                             newMask[j] = hash[j];
                         long[] links = new long[TreeNode.LINKS_COUNT];
-                        int previousIndex = hashVariants.mask[j] - '0';
-                        int newIndex = hash[j] - '0';
+                        int previousIndex = hexCharToInt(hashVariants.mask[j]);
+                        int newIndex = hexCharToInt(hash[j]);
                         links[previousIndex] = link;
                         links[newIndex] = hashes.add(
                                 new HashVariants(hash, new Hash(getFirst8Bytes(hashKey), keys.add(hashKey), value))
@@ -92,8 +97,8 @@ public class Tree extends InfinityConstArray {
                     return;
                 }
             } else {
-                nodeChar -= '0';
-                hashChar -= '0';
+                nodeChar = hexCharToInt(nodeChar);
+                hashChar = hexCharToInt(hashChar);
                 byte[] newMask = "****".getBytes();
                 System.arraycopy(node.mask, 0, newMask, 0, i);
                 long[] links = new long[TreeNode.LINKS_COUNT];
@@ -102,7 +107,7 @@ public class Tree extends InfinityConstArray {
                 long newIndex = add(new TreeNode(newMask, links));
                 if (prevIndex != Long.MAX_VALUE) {
                     get(prevIndex, node);
-                    int previousPositionInHash = hash[i - 1] - '0';
+                    int previousPositionInHash = hexCharToInt(hash[i - 1]);
                     node.links[previousPositionInHash] = newIndex;
                     set(prevIndex, node);
                 }
@@ -129,11 +134,7 @@ public class Tree extends InfinityConstArray {
                 nodeChar = node.mask[i];
             }
             if (nodeChar == '*') {
-                if (hashChar >= 0 && hashChar <= '9')
-                    hashChar -= '0';
-                if (hashChar >= 'a' && hashChar <= 'z')
-                    hashChar -= 'a';
-
+                hashChar = hexCharToInt(hashChar);
                 long link = node.links[hashChar];
                 if (link == 0) {
                     return Long.MAX_VALUE;
