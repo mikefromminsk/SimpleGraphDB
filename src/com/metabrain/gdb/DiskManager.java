@@ -11,7 +11,7 @@ public class DiskManager {
     public IniFile properties = null;
     public ActionThread mainThread;
 
-    public final static File dbDir = new File("SimpleGraphDB");
+    public final static File dbDir = new File("out/SimpleGraphDB");
     public final static File propertiesFile = new File(dbDir, "settings.properties");
     public Integer partSize;
     public Integer cacheSize;
@@ -38,7 +38,7 @@ public class DiskManager {
         // TODO problem when DiskManager init without saving data rights
 
         if (!dbDir.isDirectory())
-            if (!dbDir.mkdir())
+            if (!dbDir.mkdirs())
                 throw new FileNotFoundException();
         try {
             properties = new IniFile(propertiesFile);
