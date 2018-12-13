@@ -13,6 +13,10 @@ public class Crc16 {
         hashStr = hashStr.replace('d', '0');
         hashStr = hashStr.replace('e', '0');
         hashStr = hashStr.replace('f', '0');
+        // TODO issue when toHexString return 3 letters
+        if (hashStr.length() != 4){
+            hashStr = ("0000" + hashStr).substring(hashStr.length());
+        }
         return Bytes.fromString(hashStr);
     }
 
