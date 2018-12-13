@@ -73,6 +73,10 @@ public class Bytes {
         return mask.getBytes();
     }
 
+    public static String toString(byte[] bytes) {
+        return new String(bytes);
+    }
+
     public static byte[] concat(byte[] a, byte[] b) {
         byte[] c = new byte[a.length + b.length];
         System.arraycopy(a, 0, c, 0, a.length);
